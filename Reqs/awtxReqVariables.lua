@@ -18,11 +18,10 @@ DO NOT MAKE CHANGES TO THIS FILE UNLESS YOU FULLY UNDERSTAND WHAT YOU ARE DOING!
 ********************************************************************************
 ]]
 
-
-awtxReq.variables = {}
+local awtxVaribles = {}
 local mt = {}
 
-function class(base, init)
+function awtxVaribles._class(base, init)
    local c = {}    -- a new class instance
    if not init and type(base) == 'function' then
       init = base
@@ -133,7 +132,7 @@ function methods:recall()
 end
 
 
-awtxReq.variables.SavedVariable = class(function(var, varName, value, autoSave, tblName)
+awtxVaribles.SavedVariable = awtxVaribles._class(function(var, varName, value, autoSave, tblName)
     assert(varName)
     if (value == nil) then 
       assert(value) 
@@ -151,3 +150,4 @@ awtxReq.variables.SavedVariable = class(function(var, varName, value, autoSave, 
     var._props.autoSave = autoSave
     return var
 end)
+return awtxVaribles
