@@ -34,7 +34,6 @@ Change History:
 ]]
 
 -- create the keypad namespace
-keypad = {}
 
 -- define how many repeat events create a HOLD event for the keys
 local HowManyRepeatsMakeAHold = 3

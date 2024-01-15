@@ -14,7 +14,7 @@ This file provides event handler functions required to perform general
 *******************************************************************************
 ]]
 
-require("awtxReqConstants")
+--require("awtxReqConstants")
 
 --[[
 Description:

@@ -1,4 +1,4 @@
-local BrmReqSql = require("Reqs.brmSql")
+local BrmReqSql = require("Reqs.brmSqlClasses")
 
 
 -- Databases

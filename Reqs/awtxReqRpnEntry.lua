@@ -14,7 +14,7 @@ awtxReq.keypad.onRpnXxxx(enteredValue) functions
 *******************************************************************************
 ]]
 
-require("awtxReqConstants")
+--require("awtxReqConstants")
 
 --[[
 Description:
