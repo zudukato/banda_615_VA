@@ -2,9 +2,9 @@
 local brmDatabase = {}
 brmDatabase.__index = brmDatabase
 
----@class dbtable
-local dbtable = {}
-dbtable.__index = dbtable
+---@class tableClass
+local tableClass = {}
+tableClass.__index = tableClass
 
 --Constructor of the class brmDatabase
 ---@param databaseName string
@@ -19,7 +19,7 @@ function brmDatabase:new(databaseName)
   return self
 end
 
---Open database comunication
+--Open database communication
 ------------------------------------------------------------------------------------------
 function brmDatabase:open()
   local executionResult = {}
@@ -27,7 +27,7 @@ function brmDatabase:open()
   print(executionResult)
 end
 
---Close database comunication
+--Close database communication
 ------------------------------------------------------------------------------------------
 function brmDatabase:close()
   local executionResult = {}
@@ -38,14 +38,14 @@ end
 --Method to create a new database Tabla
 ---@param tableName string --Name of the table
 ---@param fieldsDefinition table --Initialization of fields ({"Id INTEGER NOT NULL", Name TEXT})
----@return dbtable|nil -- instance of class dbtable
+---@return tableClass|nil -- instance of class tableClass
 ------------------------------------------------------------------------------------------
 function brmDatabase:newTable(tableName, fieldsDefinition)
   if not self.dbHandle:isopen() then print("Database is closed") return end
   if type(tableName) ~="string" or type(fieldsDefinition) ~= "table" then print("tableName = nil or fields = nil") return end
   tableName = tostring(tableName)
-  ---@type dbtable
-  return dbtable:new(tableName, fieldsDefinition, self.dbHandle)
+  ---@type tableClass
+  return tableClass:new(tableName, fieldsDefinition, self.dbHandle)
 end
 
 --Handler for database tables
@@ -55,11 +55,11 @@ end
 ---@param tableName string --name of the table
 ---@param fieldsDefinition table --Initialization of fields ({"Id INTEGER NOT NULL", Name TEXT})
 ---@param dbHandle table --handle of database
----@return dbtable|nil --Instance of class
+---@return tableClass|nil --Instance of class
 ------------------------------------------------------------------------------------------
-function dbtable:new(tableName, fieldsDefinition, dbHandle)
+function tableClass:new(tableName, fieldsDefinition, dbHandle)
   if not dbHandle then return end
-  self = setmetatable({}, dbtable)
+  self = setmetatable({}, tableClass)
   self.tableName = tableName
   self._fieldsDefinition = fieldsDefinition
   self._headers = {}
@@ -81,11 +81,11 @@ function dbtable:new(tableName, fieldsDefinition, dbHandle)
   return self
 end
 
--- Inserta un nuevo renglon a la base de datos
+-- insert a new row in the table
 ---@param rowValues table --a table whit values 
----@return table,table --response and result
+---@return table|nil,table|nil --response and result
 ------------------------------------------------------------------------------------------
-function dbtable:addRow(rowValues)
+function tableClass:addRow(rowValues)
   if not rowValues then print("Not Values") return  end
   if type(rowValues) ~= "table" then print("rowValues not table") end
   if #rowValues ~= #self._headers then print("error number of values") return end
@@ -101,7 +101,7 @@ end
 ---@param whereValue any -- value of field
 ---@return table|nil,table|nil --response and result
 ------------------------------------------------------------------------------------------
-function dbtable:deleteRow(whereField, whereValue)
+function tableClass:deleteRow(whereField, whereValue)
   local whereSentence, whereValue = self:_where(whereField, whereValue)
   if whereSentence == "" then print("Who Row?") return end
   local query = "DELETE FROM " .. self.tableName .. whereSentence
@@ -115,7 +115,7 @@ end
 ---@param whereValue any -- value of field
 ---@return table|nil,table|nil --response and result
 ------------------------------------------------------------------------------------------
-function dbtable:updateRow(fields, fieldsValues, whereField, whereValue)
+function tableClass:updateRow(fields, fieldsValues, whereField, whereValue)
   local whereSentence, whereValue = self:_where(whereField, whereValue)
   fields= fields or self._headers
   --exit conditions
@@ -135,10 +135,10 @@ end
 ---@param whereField? string -- field to find
 ---@param whereValue? any -- value of field
 ---@param orderBy? string --field to order
----@param asc? boolean -- if order ascending or decending
+---@param asc? boolean -- if order ascending or descending
 ---@return table,table  --response and result of execution
 ------------------------------------------------------------------------------------------
-function dbtable:find(whereField, whereValue, orderBy, asc)
+function tableClass:find(whereField, whereValue, orderBy, asc)
   local whereSentence, whereValue = self:_where(whereField, whereValue)
   local orderBySentence = self:_orderBy(orderBy, asc)
   local query = "SELECT * FROM " .. self.tableName .. whereSentence .. orderBySentence
@@ -152,7 +152,7 @@ end
 ---@param whereValue? any -- value of field
 ---@return integer,table
 ------------------------------------------------------------------------------------------
-function dbtable:countRecord(whereField, whereValue)
+function tableClass:countRecord(whereField, whereValue)
   local whereSentence, whereValue = self:_where(whereField, whereValue)
   local query = "SELECT COUNT(*) FROM " .. self.tableName .. whereSentence
   local response, executionResult = self:_exec(query, whereValue)
@@ -162,32 +162,32 @@ end
 
 --Private method to create a sentence to order a execution
 ---@param orderBy? string --field to order
----@param asc? boolean -- if order ascending or decending
+---@param asc? boolean -- if order ascending or descending
 ---@return string --sentence
 ------------------------------------------------------------------------------------------
-function dbtable:_orderBy(orderBy, asc)
+function tableClass:_orderBy(orderBy, asc)
   if not orderBy then return "" end
   if type(orderBy) ~= "string" then print("orderBy("..orderBy..") Not String") end
   local ascString = asc and "ASC" or "DESC"
   return " ORDER BY " .. orderBy .. " " .. ascString
 end
 
--- Private method to create a sentece to find 
+-- Private method to create a sentence to find 
 ---@param whereField? string -- field to find
 ---@param whereValue? any -- value of field
 ---@return string,any --sentence
 ------------------------------------------------------------------------------------------
-function dbtable:_where(whereField, whereValue)
+function tableClass:_where(whereField, whereValue)
   if not whereField or not whereValue then return "" end
   if type(whereField) ~= 'string' then print("whereField ("..whereField..") Not String") return "" end
   return " WHERE " .. whereField .. " = ?", whereValue
 end
 
--- Private method to execut a query
----@param query string --Query to execut 
+-- Private method to execute a query
+---@param query string --Query to execute 
 ---@return table,table --response and result
 ------------------------------------------------------------------------------------------
-function dbtable:_exec(query, ...)
+function tableClass:_exec(query, ...)
   local response = {}
   local executionResult   = {query = query, values = {...}}
   local stmt     = nil
