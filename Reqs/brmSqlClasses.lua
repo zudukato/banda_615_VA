@@ -98,7 +98,7 @@ end
 
 -- Method to delete a table row
 ---@param whereField string -- field to find
----@param whereValue any -- value of field
+---@param whereValue string|number -- value of field
 ---@return table|nil,table|nil --response and result
 ------------------------------------------------------------------------------------------
 function tableClass:deleteRow(whereField, whereValue)
@@ -112,7 +112,7 @@ end
 
 -- Method to change a database row
 ---@param whereField string -- field to find
----@param whereValue any -- value of field
+---@param whereValue string|number -- value of field
 ---@return table|nil,table|nil --response and result
 ------------------------------------------------------------------------------------------
 function tableClass:updateRow(fields, fieldsValues, whereField, whereValue)
@@ -133,7 +133,7 @@ end
 
 -- Method to find rows
 ---@param whereField? string -- field to find
----@param whereValue? any -- value of field
+---@param whereValue? string|number -- value of field
 ---@param orderBy? string --field to order
 ---@param asc? boolean -- if order ascending or descending
 ---@return table,table  --response and result of execution
@@ -149,7 +149,7 @@ end
 
 -- Count the result 
 ---@param whereField? string -- field to find
----@param whereValue? any -- value of field
+---@param whereValue? string|number -- value of field
 ---@return integer,table
 ------------------------------------------------------------------------------------------
 function tableClass:countRecord(whereField, whereValue)
@@ -174,8 +174,8 @@ end
 
 -- Private method to create a sentence to find 
 ---@param whereField? string -- field to find
----@param whereValue? any -- value of field
----@return string,any --sentence
+---@param whereValue? string|number -u- value of field
+---@return string,string|number --sentence
 ------------------------------------------------------------------------------------------
 function tableClass:_where(whereField, whereValue)
   if not whereField or not whereValue then return "" end
@@ -185,6 +185,7 @@ end
 
 -- Private method to execute a query
 ---@param query string --Query to execute 
+---@param ... string|number 
 ---@return table,table --response and result
 ------------------------------------------------------------------------------------------
 function tableClass:_exec(query, ...)
@@ -195,7 +196,12 @@ function tableClass:_exec(query, ...)
   if not self._dbHandle:isopen() then return response, { ["open"] = "Database is closed" } end
   stmt, executionResult["queryExec"] = self._dbHandle:prepare(query)
   if not stmt then return {}, executionResult end
-  if ... then executionResult['valuesExec'] = stmt:bind_values(...) end
+  if #{...}>0 then
+    for _, element in pairs({...}) do 
+      if type(element) == "table" then return {}, {values = "Not tables"} end
+    end
+    executionResult['valuesExec'] = stmt:bind_values(...)
+  end
   for row in stmt:nrows() do table.insert(response, row) end
   return response, executionResult
 end

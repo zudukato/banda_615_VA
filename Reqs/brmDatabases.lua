@@ -1,3 +1,6 @@
+--[[
+    If you change the definition of tables remember delete the previos databases 
+]]
 local BrmReqSql = require("Reqs.brmSqlClasses")
 
 
@@ -11,6 +14,7 @@ databases.catalogos.empresas = databases.catalogos:newTable("empresas", {"Id VAR
 databases.catalogos.productos = databases.catalogos:newTable("productos", {"Id VARCHAR NOT NULL", "Value VARCHAR NOT NULL"})
 databases.pesadas.primeraPesada = databases.pesadas:newTable("primeraPesada", {"Folio INTEGER",
     "Placas VARCHAR NOT NULL",
+    "Chofer VARCHAR",
     "PesoIn INTEGER NOT NULL",
     "UnitsIn VARCHAR NOT NULL",
     "FechaIn DATE NOT NULL",

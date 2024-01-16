@@ -9,17 +9,16 @@ Description:
 *******************************************************************************
 ]]
 --Reqs
-local awtxConstants = require("Reqs.awtxReqConstants")
 local awtxVariables = require("Reqs.awtxReqVariables")
-local brmUtilities = require("Reqs.brmUtilities")
 require("Reqs.awtxReqScaleKeys")
 
-
+------------------------------------- Setup ---------------------------------------
+------------------------------- Global variables ----------------------------------
 Databases = require("Reqs.brmDatabases")
---------------Setup------------------------
-------------------- Persistent variables for normal application -------------------
---default values
 PersistentVars = PersistentVars or {}
+Events = Events or {} ----provitional
+------------------- Persistent variables for normal application ------------------- 
+--default values
 PersistentVars.currentMode = {value = "main"}--provisional
 PersistentVars.minWt = {value = 200}--min weight
 PersistentVars.userPassword = {value = 1793}--user Password
@@ -33,7 +32,7 @@ local function onStart()
     -- persistent value assignation recalling last saved value
     -- to access "persistentVariable.nameOfVariable.value"
     for name, defaultValue in pairs(PersistentVars) do
-        PersistentVars[name] = awtxVariables.SavedVariable(name, defaultValue, true)
+        PersistentVars[name] = awtxVariables.SavedVariable(name, defaultValue.value, true)
     end
 
 end

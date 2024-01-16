@@ -336,19 +336,19 @@ end
 -----------------------------------------------------------------------------------------------
 function awtx.keypad.KEY_NUMERIC_DOWN(numChar)
   numericHoldFlag = 0
-  keypad.onNumericKeyDown(numChar)
+  -- keypad.onNumericKeyDown(numChar)
 end
 
 function awtx.keypad.KEY_NUMERIC_REPEAT(numChar)
   numericHoldFlag = numericHoldFlag + 1
   if numericHoldFlag == HowManyRepeatsMakeAHold then
-    keypad.onNumericKeyHold(numChar)
+    -- keypad.onNumericKeyHold(numChar)
   end
 end
 
 function awtx.keypad.KEY_NUMERIC_UP(numChar)
   if numericHoldFlag < HowManyRepeatsMakeAHold then
-    keypad.onNumericKeyUp(numChar)
+    -- keypad.onNumericKeyUp(numChar)
   end
   numericHoldFlag = 0
 end
