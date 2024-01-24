@@ -34,8 +34,8 @@ function brmUtilities.doScroll(inputString, stepTime)
     local steps = #inputString
     inputString = inputString..string.rep(" ",stepLength)
     for step = 0, steps  do
-        awtx.os.systemEvents(100)
-        awtx.display.writeLine(inputString:sub(step,stepLength+step), stepTime)
+        awtx.display.writeLine(inputString:sub(step,stepLength+step))
+        awtx.os.systemEvents(stepTime)
     end
     awtx.display.setMode(currentDisplayMode)
 end
@@ -80,6 +80,32 @@ function brmUtilities.waitStability(scale)
     awtx.display.writeLine("Inestable")
     while awtx.weight.getCurrent(scale).motion do awtx.os.systemEvents(200) end
     awtx.display.setMode(currentDisplayMode)
+end
+
+---Function to get kes, values of a table
+---@param tab table 
+---@return table, table
+function brmUtilities.keysValues(tab)
+    if type(tab) ~= "table" then return {}, {} end
+    local keys, values = {}, {}
+    for key, value in pairs(tab) do
+        table.insert(keys,key)
+        table.insert(values,value)
+    end
+    return keys,values
+end
+
+---function to extract params of each table in a tableList
+---@param list table<integer,table<string,any>> --list of tables
+---@param paramName string|number -- name of param
+---@return table<integer,any> paramList --table list whit params
+function brmUtilities.extractParam(list, paramName)
+    if type(list) ~= "table" then return {} end
+    local paramList = {}
+    for _ , tab in pairs(list) do
+        table.insert(paramList, tab[paramName])
+    end
+    return paramList
 end
 
 return brmUtilities
