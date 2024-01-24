@@ -1,3 +1,5 @@
+local brmUtilities = require("Reqs.brmUtilities")
+
 ---@class brmDatabase
 local brmDatabase = {}
 brmDatabase.__index = brmDatabase
@@ -111,22 +113,20 @@ function tableClass:deleteRow(whereField, whereValue)
 end
 
 -- Method to change a database row
+---@param fieldsTable table <string, any> --table <key, value> with columns and values to update
 ---@param whereField string -- field to find
 ---@param whereValue string|number -- value of field
 ---@return table|nil,table|nil --response and result
 ------------------------------------------------------------------------------------------
-function tableClass:updateRow(fields, fieldsValues, whereField, whereValue)
+function tableClass:updateRow(fieldsTable,whereField, whereValue)
   local whereSentence, whereValue = self:_where(whereField, whereValue)
-  fields= fields or self._headers
   --exit conditions
-  if type(fields) ~='table' or type(fieldsValues) ~='table'then print("fields or fieldsValue not tables") return end
-  if not fieldsValues then print("Not values") return end
+  if type(fieldsTable) ~='table' then print("fields not a tables") return end
   if whereSentence == "" then print("Where?") return end
-  if #fields ~= #fieldsValues then  print("Error number of values") return end
-
-  table.insert(fieldsValues,whereValue)
-  local query = "UPDATE " .. self.tableName .. " SET " .. table.concat(fields,'=?,') .. "=? "..whereSentence
-  local response, executionResult = self:_exec(query,unpack(fieldsValues))
+  local keys, values = brmUtilities.keysValues(fieldsTable)
+  table.insert(values, whereValue)
+  local query = "UPDATE " .. self.tableName .. " SET " .. table.concat(keys,'=?,') .. "=? "..whereSentence
+  local response, executionResult = self:_exec(query,unpack(values))
   print(executionResult)
   return response, executionResult
 end
@@ -175,7 +175,7 @@ end
 -- Private method to create a sentence to find 
 ---@param whereField? string -- field to find
 ---@param whereValue? string|number -u- value of field
----@return string,string|number --sentence
+---@return string,string|number|nil --sentence
 ------------------------------------------------------------------------------------------
 function tableClass:_where(whereField, whereValue)
   if not whereField or not whereValue then return "" end
