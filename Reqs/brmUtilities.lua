@@ -21,7 +21,7 @@ end
 ---@param stepTime? integer --time to wait for each steps
 function brmUtilities.doScroll(inputString, stepTime)
     inputString = type(inputString)=="string" and inputString or ""
-    stepTime = type(stepTime)=="integer" and stepTime or 200
+    stepTime = type(stepTime)=="number" and stepTime or 200
     local scaleInfo= awtx.hardware.getSystem()
     local stepLength = string.find(scaleInfo.modelStr, "ZM6") and 30 or 7
     local currentDisplayMode = awtx.display.setMode(awtxConstants.display.MODE_USER)
@@ -34,8 +34,7 @@ function brmUtilities.doScroll(inputString, stepTime)
     local steps = #inputString
     inputString = inputString..string.rep(" ",stepLength)
     for step = 0, steps  do
-        awtx.display.writeLine(inputString:sub(step,stepLength+step))
-        awtx.os.systemEvents(stepTime)
+        awtx.display.writeLine(inputString:sub(step,stepLength+step), stepTime)
     end
     awtx.display.setMode(currentDisplayMode)
 end
@@ -106,6 +105,32 @@ function brmUtilities.extractParam(list, paramName)
         table.insert(paramList, tab[paramName])
     end
     return paramList
+end
+
+--- Generates a range of numbers.
+---@param start number --Initial number of the range.
+---@param stop number --Final number of the range.
+---@param step number --Step between numbers in the range. If not specified, defaults to 1. Must be a positive number.
+---@return table<integer,number>  --containing the numbers in the specified range.
+function brmUtilities.range(start, stop, step)
+    local rangeTable = {}
+    local sign = start>stop and -1 or 1
+    step = (step and step ~=0) and math.abs(step) or 1 -- to discard 0 an nil
+    for i = start, stop, step*sign do
+        table.insert(rangeTable, i)
+    end
+    return (rangeTable)
+end
+
+--- Its a function to find the index of a value
+---@param table table
+---@param valueToFind any
+---@return string|number|nil
+function brmUtilities.tableFind(table, valueToFind)
+    for key, value in pairs(table) do
+        if value == valueToFind then return key end
+    end
+    return nil
 end
 
 return brmUtilities
