@@ -48,6 +48,85 @@ function brmPeripherals.inductorCoil(setpointNum, setpointActive)
     end
 end
 
+------------ LCTs -------------
+function brmPeripherals.LCT1Green()
+    if not PersistentVars.LCTInverted then
+        return awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT1)
+    end
+    awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT1)
+    
+end
+
+function brmPeripherals.LCT2Green()
+    if not PersistentVars.LCTInverted then
+        return awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT2)
+    end
+    awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT2)
+end
+
+function brmPeripherals.LCT1Red()
+    if not PersistentVars.LCTInverted then
+        return awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT1)
+    end
+        awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT1)
+end
+
+function brmPeripherals.LCT2Red()
+    if not PersistentVars.LCTInverted then
+        return awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT2)
+    end
+    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT2)
+end
+
+function brmPeripherals.LCT1Blink()
+    while brmPeripherals._blinkActive do
+        awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT1)
+        awtx.os.systemEvents(500)
+        awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT1)
+        awtx.os.systemEvents(500)
+    end
+end
+
+function  brmPeripherals.LCT2Blink()
+    while brmPeripherals._blinkActive do
+        awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT2)
+        awtx.os.systemEvents(500)
+        awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT2)
+        awtx.os.systemEvents(500)
+    end
+end
+
+------------- Barrier ----------------
+
+function brmPeripherals.openBarrier1()
+    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier1)
+end
+
+function brmPeripherals.openBarrier2()
+    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier2)
+end
+
+function brmPeripherals.closeBarrier1()
+    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier1)
+end
+
+function brmPeripherals.closeBarrier2()
+    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier2)
+end
+
+-------------RPR--------------------
+
+brmPeripherals.RPR = {}
+brmPeripherals.RPR.portNumber = 4
+
+function brmPeripherals.RPR.showWeight()
+end
+
+function brmPeripherals.RPR.sendMessage()
+end
+
+-------------Operations--------------
+
 function brmPeripherals.start1()
     local operations = {
         [1] = function ()
@@ -105,69 +184,7 @@ function brmPeripherals.end2()
     operations[PersistentVars.LCTMode]()
     brmPeripherals.openBarrier2()
 end
-    
-function brmPeripherals.LCT1Green()
-    if not PersistentVars.LCTInverted then
-        return awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT1)
-    end
-    awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT1)
-    
-end
 
-function brmPeripherals.LCT2Green()
-    if not PersistentVars.LCTInverted then
-        return awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT2)
-    end
-    awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT2)
-end
-
-function brmPeripherals.LCT1Red()
-    if not PersistentVars.LCTInverted then
-        return awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT1)
-    end
-        awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT1)
-end
-
-function brmPeripherals.LCT2Red()
-    if not PersistentVars.LCTInverted then
-        return awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT2)
-    end
-    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT2)
-end
-
-function brmPeripherals.LCT1Blink()
-    while brmPeripherals._blinkActive do
-        awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT1)
-        awtx.os.systemEvents(500)
-        awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT1)
-        awtx.os.systemEvents(500)
-    end
-end
-
-function  brmPeripherals.LCT2Blink()
-    while brmPeripherals._blinkActive do
-        awtx.setpoint.activate(brmPeripherals._setpointsNumbers.LCT2)
-        awtx.os.systemEvents(500)
-        awtx.setpoint.deactivate(brmPeripherals._setpointsNumbers.LCT2)
-        awtx.os.systemEvents(500)
-    end
-end
-
-function brmPeripherals.openBarrier1()
-    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier1)
-end
-
-function brmPeripherals.openBarrier2()
-    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier2)
-end
-
-function brmPeripherals.closeBarrier1()
-    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier1)
-end
-
-function brmPeripherals.closeBarrier2()
-    awtx.setpoint.activate(brmPeripherals._setpointsNumbers.openBarrier2)
-end
 
 function brmPeripherals.onStart()
     awtx.setpoint.registerInputEvent(brmPeripherals._setpointsNumbers.DAP1,brmPeripherals._checkDAP)
@@ -186,6 +203,8 @@ brmPeripherals.onStart()
 MenusTree = MenusTree or {}
 MenusTree.config = MenusTree.config or {}
 
+
+--------MenusTree-----------
 MenusTree.peripherals = {
     {text = "ENABLE", action ="FUNC" , value = ""},
     {text = "LCT", action = "MENU", value = "LCT"},

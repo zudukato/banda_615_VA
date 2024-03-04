@@ -38,7 +38,7 @@ function brmChain.onStart()
     _ModeStatus = "GS"
     awtx.fmtPrint.varSet(1,"_StabilityStatus","stability status", awtxConstants.fmtPrint.TYPE_STRING_VAR)
     awtx.fmtPrint.varSet(2,"_ModeStatus","mode status", awtxConstants.fmtPrint.TYPE_STRING_VAR)
-    awtx.fmtPrint.set(1,brmChain._chain)
+    awtx.fmtPrint.set(100,brmChain._chain)
     awtx.setpoint.registerOutputEvent(40,brmChain.changeStabilityState)
     awtx.weight.registerSelectCompleteEvent(brmChain.changeModeStatus)
 end
