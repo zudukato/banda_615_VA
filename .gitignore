@@ -2,3 +2,4 @@
 **Database/**
 .*
 !.gitignore
+**test/**
