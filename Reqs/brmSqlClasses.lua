@@ -9,16 +9,18 @@ local tableClass = {}
 tableClass.__index = tableClass
 
 --Constructor of the class brmDatabase
----@param databaseName string
+---@param databaseName string --name of database
+---@param path? string --path to the store database
 ---@return brmDatabase
 ------------------------------------------------------------------------------------------
-function brmDatabase:new(databaseName)
-  self = setmetatable({}, brmDatabase)
-  self.path = "C:\\Apps\\Database\\"
-  awtx.os.makeDirectory(self.path)
-  self.databaseName = (databaseName or "Revuelta") .. ".db"
-  self:open()
-  return self
+function brmDatabase:new(databaseName, path)
+  local instance = {}
+  setmetatable(instance, self)
+  instance.path = path or "C:\\Apps\\Database\\"
+  awtx.os.makeDirectory(instance.path)
+  instance.databaseName = (databaseName or "Revuelta") .. ".db"
+  instance:open()
+  return instance
 end
 
 --Open database communication
@@ -43,9 +45,8 @@ end
 ---@return tableClass|nil -- instance of class tableClass
 ------------------------------------------------------------------------------------------
 function brmDatabase:newTable(tableName, fieldsDefinition)
-  if not self.dbHandle:isopen() then print("Database is closed") return end
+  if not self.dbHandle:isopen() then return print("Database is closed") end
   if type(tableName) ~="string" or type(fieldsDefinition) ~= "table" then print("tableName = nil or fields = nil") return end
-  tableName = tostring(tableName)
   ---@type tableClass
   return tableClass:new(tableName, fieldsDefinition, self.dbHandle)
 end
@@ -61,26 +62,27 @@ end
 ------------------------------------------------------------------------------------------
 function tableClass:new(tableName, fieldsDefinition, dbHandle)
   if not dbHandle then return end
-  self = setmetatable({}, tableClass)
-  self.tableName = tableName
-  self._fieldsDefinition = fieldsDefinition
-  self._headers = {}
+  local instance = {}
+  setmetatable(instance, self)
+  instance.tableName = tableName
+  instance._fieldsDefinition = fieldsDefinition
+  instance._headers = {}
   for _, value in ipairs(fieldsDefinition) do
-    table.insert(self._headers, string.match(value, "%s*(%w+)%s*.?"))
+    table.insert(instance._headers, string.match(value, "%s*(%w+)%s*.?"))
   end
-  self._dbHandle = dbHandle
+  instance._dbHandle = dbHandle
 
   local query = "CREATE TABLE IF NOT EXISTS " ..
-  self.tableName ..
+  instance.tableName ..
   " (" .. table.concat(fieldsDefinition, ",") .. ")"
 
   local executionResult = {
-    beginTransaction = self._dbHandle:execute("BEGIN TRANSACTION"),
-    query = self._dbHandle:execute(query),
-    commit = self._dbHandle:execute("COMMIT")
+    beginTransaction = instance._dbHandle:execute("BEGIN TRANSACTION"),
+    query = instance._dbHandle:execute(query),
+    commit = instance._dbHandle:execute("COMMIT")
   }
   print(executionResult)
-  return self
+  return instance
 end
 
 -- insert a new row in the table
@@ -203,6 +205,7 @@ function tableClass:_exec(query, ...)
     executionResult['valuesExec'] = stmt:bind_values(...)
   end
   for row in stmt:nrows() do table.insert(response, row) end
+  stmt:finalize()
   return response, executionResult
 end
 
