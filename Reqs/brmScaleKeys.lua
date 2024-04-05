@@ -14,9 +14,9 @@ The default handled event keys may or may not exist on other hardware.
 Functions:
 -- These create the default functionality for the keys.
 -- Redefine the function to change the default functionality.
-  if CurrentMode.keypad.onXXXKeyDown then return CurrentMode.keypad.onXXXKeyDown() end
-  if CurrentMode.keypad.onXXXKeyHold then return CurrentMode.keypad.onXXXKeyHold() end
-  if CurrentMode.keypad.onXXXKeyUp then return CurrentMode.keypad.onXXXKeyUp() end
+  return brmScaleKeys.keyHandle("onXXXKeyDown")
+  return brmScaleKeys.keyHandle("onXXXKeyHold")
+  return brmScaleKeys.keyHandle("onXXXKeyUp")
   
 Event Handlers:
 -- Leave these as-is as they create your hold events.
@@ -35,6 +35,7 @@ Change History:
 
 -- create the keypad namespace
 local brmScaleKeys = {}
+local awtxReqConstants = require("Reqs.awtxReqConstants")
 
 -- define how many repeat events create a HOLD event for the keys
 local HowManyRepeatsMakeAHold = 3
@@ -55,41 +56,25 @@ local numericHoldFlag = 0
 local clearHoldFlag = 0
 local decimalHoldFlag = 0
 local zeroHoldFlag = 0
-local keys = {f1 = 1, f2 = 2, f3 = 3,
-        f4 = 4, f5 = 5,
-        key_0 = 6, key_1 = 7,
-        key_2 = 8, key_3 = 9,
-        key_4 = 10, key_5 = 11,
-        key_6 = 12, key_7 = 13,
-        key_8 = 14, key_9 = 15,
-        clear = 16, decimal = 17,
-        id = 19, print = 22,
-        sample = 24, scale_select = 25,
-        select = 26, setup = 27,
-        start = 28, stop = 29,
-        tare = 30, target = 31,
-        units = 33, zero = 34,
-    }
 
 
----function to wait to press a key
----@param keyName string
-function brmScaleKeys.witKey(keyName)
-  keyName = type(keyName) == "string" and keyName or "zero"
-  local key = keys[keyName]
-  if not key then return print("not key") end
-  local passOperation = CurrentMode.operationsActive -- To save a before status of operationsActive
-  CurrentMode.operationsActive = false --Deactivating operationsActive
+---Function to wait to press a key 
+---caution! it function block all the keys except setup, but another function event how change the screen can be activated
+---@param key string
+function brmScaleKeys.waitKey(key)
+  local preCurrentMode = CurrentMode
+  local waitK = {_name = "waitKey" ,keypad = {} }
+  local flag = nil
+  waitK.keypad.onF1KeyUp = function () flag = false  end
+  waitK.keypad[key] = function () flag = true  end
+  CurrentMode = waitK
+  while type(flag)=="nil" do awtx.os.systemEvents(200) end
+  CurrentMode = preCurrentMode
+  return flag
+end
 
-  awtx.keypad.registerAlternateKeyEvent(function(key_code) --the unique key whit use is the selected
-      if key_code == key then brmUtilities._alternativeKeyPress = true end
-  end)
-  awtx.keypad.useAlternateLuaKeyboardEvents()
-  while not brmUtilities._alternativeKeyPress do
-      awtx.os.systemEvents(200)
-  end
-  brmUtilities._alternativeKeyPress = false
-  CurrentMode.operationsActive = passOperation -- To set the before status of operationsActive
+function brmScaleKeys.keyHandle(keyEvent,...)
+  if CurrentMode.keypad[keyEvent] then return CurrentMode.keypad[keyEvent](arg) end
 end
 
 function brmScaleKeys.onStart()
@@ -98,19 +83,19 @@ function brmScaleKeys.onStart()
 ------------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_TARE_DOWN()
     tareHoldFlag = 0
-    if CurrentMode.keypad.onTareKeyDown then return CurrentMode.keypad.onTareKeyDown() end
+    return brmScaleKeys.keyHandle("onTareKeyDown")
   end
 
   function awtx.keypad.KEY_TARE_REPEAT()
     tareHoldFlag = tareHoldFlag + 1
     if tareHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onTareKeyHold then return CurrentMode.keypad.onTareKeyHold() end
+      return brmScaleKeys.keyHandle("onTareKeyHold")
     end
   end
 
   function awtx.keypad.KEY_TARE_UP()
     if tareHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onTareKeyUp then return CurrentMode.keypad.onTareKeyUp() end
+      return brmScaleKeys.keyHandle("onTareKeyUp")
     end
     tareHoldFlag = 0
   end
@@ -121,20 +106,20 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_SELECT_DOWN()
     selectHoldFlag = 0
-    if CurrentMode.keypad.onSelectKeyDown then return CurrentMode.keypad.onSelectKeyDown() end
     awtx.weight.cycleActiveValue()
+    return brmScaleKeys.keyHandle("onSelectKeyDown")
   end
 
   function awtx.keypad.KEY_SELECT_REPEAT()
     selectHoldFlag = selectHoldFlag + 1
     if selectHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onSelectKeyHold then return CurrentMode.keypad.onSelectKeyHold() end
+      return brmScaleKeys.keyHandle("onSelectKeyHold")
     end
   end
 
   function awtx.keypad.KEY_SELECT_UP()
     if selectHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onSelectKeyUp then return CurrentMode.keypad.onSelectKeyUp() end
+      return brmScaleKeys.keyHandle("onSelectKeyUp")
     end
     selectHoldFlag = 0
   end
@@ -145,19 +130,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_PRINT_DOWN()
     printHoldFlag = 0
-    if CurrentMode.keypad.onPrintKeyDown then return CurrentMode.keypad.onPrintKeyDown() end
+    return brmScaleKeys.keyHandle("onPrintKeyDown")
   end
 
   function awtx.keypad.KEY_PRINT_REPEAT()
     printHoldFlag = printHoldFlag + 1
     if printHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onPrintKeyHold then return CurrentMode.keypad.onPrintKeyHold() end
+      return brmScaleKeys.keyHandle("onPrintKeyHold")
     end
   end
 
   function awtx.keypad.KEY_PRINT_UP()
     if printHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onPrintKeyUp then return CurrentMode.keypad.onPrintKeyUp() end
+      return brmScaleKeys.keyHandle("onPrintKeyUp")
     end
     printHoldFlag = 0
   end
@@ -168,19 +153,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_UNITS_DOWN()
     unitsHoldFlag = 0
-    if CurrentMode.keypad.onUnitsKeyDown then return CurrentMode.keypad.onUnitsKeyDown() end
+    return brmScaleKeys.keyHandle("onUnitsKeyDown")
   end
 
   function awtx.keypad.KEY_UNITS_REPEAT()
     unitsHoldFlag = unitsHoldFlag + 1
     if unitsHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onUnitsKeyHold then return CurrentMode.keypad.onUnitsKeyHold() end
+      return brmScaleKeys.keyHandle("onUnitsKeyHold")
     end
   end
 
   function awtx.keypad.KEY_UNITS_UP()
     if unitsHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onUnitsKeyUp then return CurrentMode.keypad.onUnitsKeyUp() end
+      return brmScaleKeys.keyHandle("onUnitsKeyUp")
     end
     unitsHoldFlag = 0
   end
@@ -191,19 +176,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_ZERO_DOWN()
     zeroHoldFlag = 0
-    if CurrentMode.keypad.onZeroKeyDown then return CurrentMode.keypad.onZeroKeyDown() end
+    return brmScaleKeys.keyHandle("onZeroKeyDown")
   end
 
   function awtx.keypad.KEY_ZERO_REPEAT()
     zeroHoldFlag = zeroHoldFlag + 1
     if zeroHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onZeroKeyHold then return CurrentMode.keypad.onZeroKeyHold() end
+      return brmScaleKeys.keyHandle("onZeroKeyHold")
     end
   end
 
   function awtx.keypad.KEY_ZERO_UP()
     if zeroHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onZeroKeyUp then return CurrentMode.keypad.onZeroKeyUp() end
+      return brmScaleKeys.keyHandle("onZeroKeyUp")
     end
     zeroHoldFlag = 0
   end
@@ -214,19 +199,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_SAMPLE_DOWN()
     sampleHoldFlag = 0
-    if CurrentMode.keypad.onSampleKeyDown then return CurrentMode.keypad.onSampleKeyDown() end
+    return brmScaleKeys.keyHandle("onSampleKeyDown")
   end
 
   function awtx.keypad.KEY_SAMPLE_REPEAT()
     sampleHoldFlag = sampleHoldFlag + 1
     if sampleHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onSampleKeyHold then return CurrentMode.keypad.onSampleKeyHold() end
+      return brmScaleKeys.keyHandle("onSampleKeyHold")
     end
   end
 
   function awtx.keypad.KEY_SAMPLE_UP()
     if sampleHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onSampleKeyUp then return CurrentMode.keypad.onSampleKeyUp() end
+      return brmScaleKeys.keyHandle("onSampleKeyUp")
     end
     sampleHoldFlag = 0
   end
@@ -237,19 +222,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_START_DOWN()
     startHoldFlag = 0
-    if CurrentMode.keypad.onStartKeyDown then return CurrentMode.keypad.onStartKeyDown() end
+    return brmScaleKeys.keyHandle("onStartKeyDown")
   end
 
   function awtx.keypad.KEY_START_REPEAT()
     startHoldFlag = startHoldFlag + 1
     if startHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onStartKeyHold then return CurrentMode.keypad.onStartKeyHold() end
+      return brmScaleKeys.keyHandle("onStartKeyHold")
     end
   end
 
   function awtx.keypad.KEY_START_UP()
     if startHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onStartKeyUp then return CurrentMode.keypad.onStartKeyUp() end
+      return brmScaleKeys.keyHandle("onStartKeyUp")
     end
     startHoldFlag = 0
   end
@@ -260,19 +245,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_STOP_DOWN()
     stopHoldFlag = 0
-    if CurrentMode.keypad.onStopKeyDown then return CurrentMode.keypad.onStopKeyDown() end
+    return brmScaleKeys.keyHandle("onStopKeyDown")
   end
 
   function awtx.keypad.KEY_STOP_REPEAT()
     stopHoldFlag = stopHoldFlag + 1
     if stopHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onStopKeyHold then return CurrentMode.keypad.onStopKeyHold() end
+      return brmScaleKeys.keyHandle("onStopKeyHold")
     end
   end
 
   function awtx.keypad.KEY_STOP_UP()
     if stopHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onStopKeyUp then return CurrentMode.keypad.onStopKeyUp() end
+      return brmScaleKeys.keyHandle("onStopKeyUp")
     end
     stopHoldFlag = 0
   end
@@ -283,19 +268,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_F1_DOWN()
     f1HoldFlag = 0
-    if CurrentMode.keypad.onF1KeyDown then return CurrentMode.keypad.onF1KeyDown() end
+    return brmScaleKeys.keyHandle("onF1KeyDown")
   end
 
   function awtx.keypad.KEY_F1_REPEAT()
     f1HoldFlag = f1HoldFlag + 1
     if f1HoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onF1KeyHold then return CurrentMode.keypad.onF1KeyHold() end
+      return brmScaleKeys.keyHandle("onF1KeyHold")
     end
   end
 
   function awtx.keypad.KEY_F1_UP()
     if f1HoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onF1KeyUp then return CurrentMode.keypad.onF1KeyUp() end
+      return brmScaleKeys.keyHandle("onF1KeyUp")
     end
     f1HoldFlag = 0
   end
@@ -306,19 +291,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_SCALE_SELECT_DOWN()
     scaleSelectHoldFlag = 0
-    if CurrentMode.keypad.onScaleSelectKeyDown then return CurrentMode.keypad.onScaleSelectKeyDown() end
+    return brmScaleKeys.keyHandle("onScaleSelectKeyDown")
   end
 
   function awtx.keypad.KEY_SCALE_SELECT_REPEAT()
     scaleSelectHoldFlag = scaleSelectHoldFlag + 1
     if scaleSelectHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onScaleSelectKeyHold then return CurrentMode.keypad.onScaleSelectKeyHold() end
+      return brmScaleKeys.keyHandle("onScaleSelectKeyHold")
     end
   end
 
   function awtx.keypad.KEY_SCALE_SELECT_UP()
     if scaleSelectHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onScaleSelectKeyUp then return CurrentMode.keypad.onScaleSelectKeyUp() end
+      return brmScaleKeys.keyHandle("onScaleSelectKeyUp")
     end
     scaleSelectHoldFlag = 0
   end
@@ -329,19 +314,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_SETUP_DOWN()
     setupHoldFlag = 0
-    if CurrentMode.keypad.onSetupKeyDown then return CurrentMode.keypad.onSetupKeyDown() end
+    return brmScaleKeys.keyHandle("onSetupKeyDown")
   end
 
   function awtx.keypad.KEY_SETUP_REPEAT()
     setupHoldFlag = setupHoldFlag + 1
     if setupHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onSetupKeyHold then return CurrentMode.keypad.onSetupKeyHold() end
+      return brmScaleKeys.keyHandle("onSetupKeyHold")
     end
   end
 
   function awtx.keypad.KEY_SETUP_UP()
     if setupHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onSetupKeyUp then return CurrentMode.keypad.onSetupKeyUp() end
+      return brmScaleKeys.keyHandle("onSetupKeyUp")
     end
     setupHoldFlag = 0
   end
@@ -352,19 +337,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_TARGET_DOWN()
     targetHoldFlag = 0
-    if CurrentMode.keypad.onTargetKeyDown then return CurrentMode.keypad.onTargetKeyDown() end
+    return brmScaleKeys.keyHandle("onTargetKeyDown")
   end
 
   function awtx.keypad.KEY_TARGET_REPEAT()
     targetHoldFlag = targetHoldFlag + 1
     if targetHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onTargetKeyHold then return CurrentMode.keypad.onTargetKeyHold() end
+      return brmScaleKeys.keyHandle("onTargetKeyHold")
     end
   end
 
   function awtx.keypad.KEY_TARGET_UP()
     if targetHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onTargetKeyUp then return CurrentMode.keypad.onTargetKeyUp() end
+      return brmScaleKeys.keyHandle("onTargetKeyUp")
     end
     targetHoldFlag = 0
   end
@@ -375,19 +360,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_NUMERIC_DOWN(numChar)
     numericHoldFlag = 0
-    -- keypad.onNumericKeyDown(numChar)
+    return brmScaleKeys.keyHandle("onNumericKeyDown", numChar)
   end
 
   function awtx.keypad.KEY_NUMERIC_REPEAT(numChar)
     numericHoldFlag = numericHoldFlag + 1
     if numericHoldFlag == HowManyRepeatsMakeAHold then
-      -- keypad.onNumericKeyHold(numChar)
+      return brmScaleKeys.keyHandle("onNumericKeyRepeat", numChar)
     end
   end
 
   function awtx.keypad.KEY_NUMERIC_UP(numChar)
     if numericHoldFlag < HowManyRepeatsMakeAHold then
-      -- keypad.onNumericKeyUp(numChar)
+      return brmScaleKeys.keyHandle("onNumericKeyUp", numChar)
     end
     numericHoldFlag = 0
   end
@@ -398,19 +383,19 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_CLEAR_DOWN()
     clearHoldFlag = 0
-    if CurrentMode.keypad.onClearKeyDown then return CurrentMode.keypad.onClearKeyDown() end
+    return brmScaleKeys.keyHandle("onClearKeyDown")
   end
 
   function awtx.keypad.KEY_CLEAR_REPEAT()
     clearHoldFlag = clearHoldFlag + 1
     if clearHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onClearKeyHold then return CurrentMode.keypad.onClearKeyHold() end
+      return brmScaleKeys.keyHandle("onClearKeyHold")
     end
   end
 
   function awtx.keypad.KEY_CLEAR_UP()
     if clearHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onClearKeyUp then return CurrentMode.keypad.onClearKeyUp() end
+      return brmScaleKeys.keyHandle("onClearKeyUp")
     end
     clearHoldFlag = 0
   end
@@ -421,23 +406,23 @@ function brmScaleKeys.onStart()
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_DECIMAL_DOWN()
     decimalHoldFlag = 0
-    if CurrentMode.keypad.onDecimalKeyDown then return CurrentMode.keypad.onDecimalKeyDown() end
+    return brmScaleKeys.keyHandle("onDecimalKeyDown")
   end
 
   function awtx.keypad.KEY_DECIMAL_REPEAT()
     decimalHoldFlag = decimalHoldFlag + 1
     if decimalHoldFlag == HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onDecimalKeyHold then return CurrentMode.keypad.onDecimalKeyHold() end
+      return brmScaleKeys.keyHandle("onDecimalKeyHold")
     end
   end
 
   function awtx.keypad.KEY_DECIMAL_UP()
     if decimalHoldFlag < HowManyRepeatsMakeAHold then
-      if CurrentMode.keypad.onDecimalKeyUp then return CurrentMode.keypad.onDecimalKeyUp() end
+      return brmScaleKeys.keyHandle("onDecimalKeyUp")
     end
     decimalHoldFlag = 0
   end
 
 end
-
 brmScaleKeys.onStart()
+return brmScaleKeys

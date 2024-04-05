@@ -19,14 +19,14 @@ History:
 --
 -- DISPLAY
 --
-local awtxConstants  = {
-    
+local awtxConstants = {
+
     display = {
         MODE_SCALE = 0,
         MODE_USER  = 1,
         MODE_MENU  = 2
     },
-    
+
     graphics = {
         FONT_SYSTEM              = 0,  --  23 pixels tall 10 pixels wide
         FONT_LUCIDA_CON_8        = 3,  --   8 pixels tall
@@ -60,30 +60,109 @@ local awtxConstants  = {
         FONT_LARGE_WT_120        = 47, -- 120 pixels tall
         FONT_LARGE_WT_160        = 48, -- 160 pixels tall
     },
-    
+
     keypad = {
-        RPN_MODE_DISABLED          = 0,
-        RPN_MODE_ENABLED           = 1,
+        RPN_MODE_DISABLED = 0,
+        RPN_MODE_ENABLED  = 1,
     },
-    
+
+    keys = {
+        onF1KeyUp = "onF1KeyUp",
+        onF1KeyHold = "onF1KeyHold",
+        onF1KeyDown = "onF1KeyDown",
+
+        onF2KeyUp = "onF2KeyUp",
+        onF2KeyHold = "onF2KeyHold",
+        onF2KeyDown = "onF2KeyDown",
+
+        onF3KeyUp = "onF3KeyUp",
+        onF3KeyHold = "onF3KeyHold",
+        onF3KeyDown = "onF3KeyDown",
+
+        onF4KeyUp = "onF4KeyUp",
+        onF4KeyHold = "onF4KeyHold",
+        onF4KeyDown = "onF4KeyDown",
+
+        onF5KeyUp = "onF5KeyUp",
+        onF5KeyHold = "onF5KeyHold",
+        onF5KeyDown = "onF5KeyDown",
+
+        onClearKeyUp = "onClearKeyUp",
+        onClearKeyHold = "onClearKeyHold",
+        onClearKeyDown = "onClearKeyDown",
+
+        onDecimalKeyUp = "onDecimalKeyUp",
+        onDecimalKeyHold = "onDecimalKeyHold",
+        onDecimalKeyDown = "onDecimalKeyDown",
+
+        onIdKeyUp = "onIdKeyUp",
+        onIdKeyHold = "onIdKeyHold",
+        onIdKeyDown = "onIdKeyDown",
+
+        onPrintKeyUp = "onPrintKeyUp",
+        onPrintKeyHold = "onPrintKeyHold",
+        onPrintKeyDown = "onPrintKeyDown",
+
+        onSampleKeyUp = "onSampleKeyUp",
+        onSampleKeyHold = "onSampleKeyHold",
+        onSampleKeyDown = "onSampleKeyDown",
+        
+        onScale_selectKeyUp = "onScale_selectKeyUp",
+        onScale_selectKeyHold = "onScale_selectKeyHold",
+        onScale_selectKeyDown = "onScale_selectKeyDown",
+
+        onSelectKeyUp = "onSelectKeyUp",
+        onSelectKeyHold = "onSelectKeyHold",
+        onSelectKeyDown = "onSelectKeyDown",
+        
+        onSetupKeyUp = "onSetupKeyUp",
+        onSetupKeyHold = "onSetupKeyHold",
+        onSetupKeyDown = "onSetupKeyDown",
+
+        onStartKeyUp = "onStartKeyUp",
+        onStartKeyHold = "onStartKeyHold",
+        onStartKeyDown = "onStartKeyDown",
+        
+        onStopKeyUp = "onStopKeyUp",
+        onStopKeyHold = "onStopKeyHold",
+        onStopKeyDown = "onStopKeyDown",
+
+        onTareKeyUp = "onTareKeyUp",
+        onTareKeyHold = "onTareKeyHold",
+        onTareKeyDown = "onTareKeyDown",
+        
+        onTargetKeyUp = "onTargetKeyUp",
+        onTargetKeyHold = "onTargetKeyHold",
+        onTargetKeyDown = "onTargetKeyDown",
+
+        onUnitsKeyUp = "onUnitsKeyUp",
+        onUnitsKeyHold = "onUnitsKeyHold",
+        onUnitsKeyDown = "onUnitsKeyDown",
+        
+        onZeroKeyUp = "onZeroKeyUp",
+        onZeroKeyHold = "onZeroKeyHold",
+        onZeroKeyDown = "onZeroKeyDown",
+
+    },
+
     fmtPrint = {
-        TYPE_UNDEFINED          = 0,
-        TYPE_WEIGHT             = 1,
-        TYPE_STRING             = 2,
-        TYPE_DATE               = 3,
-        TYPE_TIME               = 4,
-        TYPE_FLOAT              = 5,
-        TYPE_INTEGER            = 6,
-        TYPE_BOOLEAN            = 7,
-        TYPE_WEIGHT_VAR         = 8,
-        TYPE_STRING_VAR         = 9,
-        TYPE_DATE_VAR           = 10,
-        TYPE_TIME_VAR           = 11,
-        TYPE_FLOAT_VAR          = 12,
-        TYPE_INTEGER_VAR        = 13,
-        TYPE_BOOLEAN_VAR        = 14,
+        TYPE_UNDEFINED   = 0,
+        TYPE_WEIGHT      = 1,
+        TYPE_STRING      = 2,
+        TYPE_DATE        = 3,
+        TYPE_TIME        = 4,
+        TYPE_FLOAT       = 5,
+        TYPE_INTEGER     = 6,
+        TYPE_BOOLEAN     = 7,
+        TYPE_WEIGHT_VAR  = 8,
+        TYPE_STRING_VAR  = 9,
+        TYPE_DATE_VAR    = 10,
+        TYPE_TIME_VAR    = 11,
+        TYPE_FLOAT_VAR   = 12,
+        TYPE_INTEGER_VAR = 13,
+        TYPE_BOOLEAN_VAR = 14,
     },
-    
+
     printer = {
         STATUS_OFFLINE           = 1,
         STATUS_ONLINE            = 2,
@@ -100,61 +179,61 @@ local awtxConstants  = {
         JOB_STATUS_ABORTED       = 2,
         JOB_STATUS_CREATE_FAILED = 3,
     },
-    
-    weight= {
-        VAL_GROSS                 = 0,
-        VAL_NET                   = 1,
-        VAL_TARE                  = 2,
-        VAL_MIN                   = 3,
-        VAL_MAX                   = 4,
-        VAL_ROC                   = 5,
-        VAL_GTOTAL                = 6,
-        VAL_NTOTAL                = 7,
-        VAL_TTOTAL                = 8,
-        VAL_CTOTAL                = 9,
-        VAL_TRANS                 = 10,
-        VAL_COUNT                 = 11,
-        VAL_VAR                   = 12,
-        VAL_PCWT                  = 13,
-        VAL_ADCCOUNTS             = 14,
-        VAL_STD_DEV               = 15,
-        VAL_TREND                 = 16,
-        VAL_X_BAR_R               = 17,
-        VAL_PERCENT               = 18,
-        VAL_NET_MINUS_ANNUN       = 19,
-        VAL_BLANK                 = 20,
-        VAL_INMOTION              = 21,
-        VAL_TARGET                = 22,
-        VAL_GTOT_PLUS_CURRENT     = 23,
-        VAL_GTOT_MINUS_CURRENT    = 24,
-        VAL_NTOT_PLUS_CURRENT     = 25,
-        VAL_NTOT_MINUS_CURRENT    = 26,
-        VAL_CTOT_PLUS_CURRENT     = 27,
-        VAL_CTOT_MINUS_CURRENT    = 28,
-        VAL_ACCUMULATIONS         = 29,
-        VAL_GAVERAGE              = 30,
-        VAL_NAVERAGE              = 31,
-        VAL_CAVERAGE              = 32,
-        VAL_NMIN                  = 33,
-        VAL_NMAX                  = 34,
-        VAL_RATE                  = 35,
-        VAL_FREEFALL_1            = 36,
-        VAL_GFUTURE_1             = 37,
-        VAL_NFUTURE_1             = 38,
-        VAL_FREEFALL_2            = 39,
-        VAL_GFUTURE_2             = 40,
-        VAL_NFUTURE_2             = 41,
-        VAL_PCWT_1000             = 42,
-        VAL_PERCENT_ACCURACY      = 43,
-        VAL_LAST_SAMPLE           = 44,
-        VAL_GROSS_ALL_SCALES      = 45,
-        VAL_NET_ALL_SCALES        = 46,
-        VAL_TARE_ALL_SCALES       = 47,
-        VAL_COUNT_ALL_SCALES      = 48,
-        VAL_GTOT_ALL_SCALES       = 49,
-        VAL_NTOT_ALL_SCALES       = 50,
-        VAL_CTOT_ALL_SCALES       = 51,
-        VAL_USER_MESSAGE          = 52,
+
+    weight = {
+        VAL_GROSS              = 0,
+        VAL_NET                = 1,
+        VAL_TARE               = 2,
+        VAL_MIN                = 3,
+        VAL_MAX                = 4,
+        VAL_ROC                = 5,
+        VAL_GTOTAL             = 6,
+        VAL_NTOTAL             = 7,
+        VAL_TTOTAL             = 8,
+        VAL_CTOTAL             = 9,
+        VAL_TRANS              = 10,
+        VAL_COUNT              = 11,
+        VAL_VAR                = 12,
+        VAL_PCWT               = 13,
+        VAL_ADCCOUNTS          = 14,
+        VAL_STD_DEV            = 15,
+        VAL_TREND              = 16,
+        VAL_X_BAR_R            = 17,
+        VAL_PERCENT            = 18,
+        VAL_NET_MINUS_ANNUN    = 19,
+        VAL_BLANK              = 20,
+        VAL_INMOTION           = 21,
+        VAL_TARGET             = 22,
+        VAL_GTOT_PLUS_CURRENT  = 23,
+        VAL_GTOT_MINUS_CURRENT = 24,
+        VAL_NTOT_PLUS_CURRENT  = 25,
+        VAL_NTOT_MINUS_CURRENT = 26,
+        VAL_CTOT_PLUS_CURRENT  = 27,
+        VAL_CTOT_MINUS_CURRENT = 28,
+        VAL_ACCUMULATIONS      = 29,
+        VAL_GAVERAGE           = 30,
+        VAL_NAVERAGE           = 31,
+        VAL_CAVERAGE           = 32,
+        VAL_NMIN               = 33,
+        VAL_NMAX               = 34,
+        VAL_RATE               = 35,
+        VAL_FREEFALL_1         = 36,
+        VAL_GFUTURE_1          = 37,
+        VAL_NFUTURE_1          = 38,
+        VAL_FREEFALL_2         = 39,
+        VAL_GFUTURE_2          = 40,
+        VAL_NFUTURE_2          = 41,
+        VAL_PCWT_1000          = 42,
+        VAL_PERCENT_ACCURACY   = 43,
+        VAL_LAST_SAMPLE        = 44,
+        VAL_GROSS_ALL_SCALES   = 45,
+        VAL_NET_ALL_SCALES     = 46,
+        VAL_TARE_ALL_SCALES    = 47,
+        VAL_COUNT_ALL_SCALES   = 48,
+        VAL_GTOT_ALL_SCALES    = 49,
+        VAL_NTOT_ALL_SCALES    = 50,
+        VAL_CTOT_ALL_SCALES    = 51,
+        VAL_USER_MESSAGE       = 52,
     }
 }
 

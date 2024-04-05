@@ -9,6 +9,7 @@ brmAppMenu.historyIndex = {}
 ---@param menuName string = name of the menu in MenusTree
 ---@param preIndex? number = index to start 
 function brmAppMenu._openMenu(menuName, preIndex)
+  
     if not menuName or not MenusTree[menuName] then return brmAppMenu._exitMenus() end
     preIndex = preIndex or 1
     brmAppMenu.topMenu = {}

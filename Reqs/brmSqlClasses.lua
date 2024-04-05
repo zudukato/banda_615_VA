@@ -1,11 +1,29 @@
 local brmUtilities = require("Reqs.brmUtilities")
 
 ---@class brmDatabase
-local brmDatabase = {}
+local brmDatabase = {
+  ---params definition---
+  ---@type string
+  path = "",
+  ---@type string
+  databaseName = "",
+  ---@type table
+  _dbHandle = nil
+}
 brmDatabase.__index = brmDatabase
 
 ---@class tableClass
-local tableClass = {}
+local tableClass = {
+  ----params-----
+  ---@type string
+  tableName = "",
+  ---@type table
+  _fieldsDefinition = {},
+  ---@type table
+  _headers = {},
+  ---@type table
+  _dbHandle = nil
+}
 tableClass.__index = tableClass
 
 --Constructor of the class brmDatabase
