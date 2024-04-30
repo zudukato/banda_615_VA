@@ -1,5 +1,6 @@
 local f = {}
 local brmUtilities = require("Reqs.brmUtilities")
+local brmVariables = require("Reqs.brmVariables")
 
 ---function to change headers of tickets
 ---@param headerNum integer number of header to change
@@ -15,6 +16,9 @@ function f.changeHeaders(headerNum)
 end
 
 function f.changeTicketNumber()
+    local isEnterKey, number = awtx.keypad.enterInteger(PersistentVars.ticketNumber,1,99999,-1,Language.enter,Language._phrases.ticketNumber)
+    if not isEnterKey then return end
+    PersistentVars.ticketNumber = number
 end
 
 ---function to change the user password
@@ -81,39 +85,85 @@ function f._selectTable()
     return databaseTable
 end
 
+function f.changeLanguage()
+    if brmUtilities.changeLanguage() then brmUtilities.reboot() end
+end
+
+function f.resetDatabases()
+    local options = {Language.no, Language.yes}
+    local choice, isEnterKey = awtx.keypad.selectList(table.concat(options,","), 0, -1, Language.reset,Language.databases)
+    if not isEnterKey then return end
+    if options[choice+1]==Language.no then return end
+    for _,database in pairs(Databases) do
+        database:close()
+        awtx.os.deleteFile(database.path..database.databaseName)
+    end
+    awtx.os.deleteFile('c://Databases//*.db')
+end
+
+function f.resetWeights()
+    local options = {Language.no, Language.yes}
+    local choice, isEnterKey = awtx.keypad.selectList(table.concat(options,","), 0, -1, Language.reset,Language.weights)
+    if not isEnterKey then return end
+    if options[choice+1]==Language.no then return end
+    Databases.pesadas:close()
+    awtx.os.deleteFile(Databases.pesadas.path..Databases.pesadas.databaseName)
+end
+
+function f.resetVariables()
+    local options = {Language.no, Language.yes}
+    local choice, isEnterKey = awtx.keypad.selectList(table.concat(options,","), 0, -1, Language.reset,Language.variables)
+    if not isEnterKey then return end
+    if options[choice+1]==Language.no then return end
+    brmVariables.deleteAllTables()
+
+end
+
+function f.resetAll()
+    local options = {Language.no, Language.yes}
+    local choice, isEnterKey = awtx.keypad.selectList(table.concat(options,","), 0, -1, Language.reset,Language.all)
+    if not isEnterKey then return end
+    if options[choice+1]==Language.no then return end
+    brmVariables.deleteAllTables()
+    for _,database in pairs(Databases) do
+        database:close()
+        awtx.os.deleteFile(database.path..database.databaseName)
+    end
+    awtx.os.deleteFile('c://Databases//*.db')
+    brmUtilities.reboot()
+end
+
 local menusTree = 
 {
     topMenu = {
-        { text = "BOLETOS",   action = "MENU",   value = "ticketsMenu" },
-        { text = "CONFIG",    action = "MENU",   value = "config" },
-        { text = "CATALOGOS", action = "MENU",   value = "catalogos" },
-        { text = "PRINT",     action = "FUNC",   value = print, params = { 1, 2, 4 } },
-        { text = "CH.PASS",   action = "FUNC",   value = f.changeUserPassword },
-        { onlySupport = true, text = "SENTINEL", action = "MENU", value = "password" },
-        { onlySupport = true, text = "PESADASDB", action = "MENU", value = "pesadas" },
+        { text = Language.ticket,   action = "MENU",   value = "ticketsMenu" },
+        { text = Language.config,    action = "MENU",   value = "config" },
+        { text = Language.catalogs, action = "MENU",   value = "catalogues" },
+        { text = Language.language,     action = "FUNC",   value = f.changeLanguage },
+        { text = Language._phrases.chPassword,   action = "FUNC",   value = f.changeUserPassword },
+        { text = Language.reset,   action = "MENU",   value = "reset"},
     },
     ticketsMenu = {
-        { text = "HEADERS", action = "MENU", value = "headers" },
-        { text = "BOL.NUM", action = "FUNC", value = f.changeTicketNumber},
+        { text = Language.headers, action = "MENU", value = "headers" },
+        { text = Language._phrases.ticketNumber, action = "FUNC", value = f.changeTicketNumber},
     },
     headers = {
-        { text = "HEADER1", action = "FUNC", value = f.changeHeaders, params = { 1 } },
-        { text = "HEADER2", action = "FUNC", value = f.changeHeaders, params = { 2 } },
+        { text = Language.header1, action = "FUNC", value = f.changeHeaders, params = { 1 } },
+        { text = Language.header2, action = "FUNC", value = f.changeHeaders, params = { 2 } },
     },
-    catalogos = {
-        { text = "AGREGAR",  action = "FUNC", value = f.databaseAdd },
-        { text = "ELIMINAR", action = "FUNC", value = f.databaseDelete },
-        { text = "EDITAR",   action = "FUNC", value = f.databaseEdit },
+    catalogues = {
+        { text = Language.add,  action = "FUNC", value = f.databaseAdd },
+        { text = Language.delete, action = "FUNC", value = f.databaseDelete },
+        { text = Language.edit,   action = "FUNC", value = f.databaseEdit },
     },
     config = {
     },
-    pesadas = {
-        { text = "CONTAR",  action = "FUNC", value = function ()
-            brmUtilities.doScroll(Databases.pesadas.segundaPesada:countRecord())
-            print(awtx.os.memoryMaxUsage())
-        end },
-    }
-
+    reset = {
+        { text = Language._phrases.resetAll, action="FUNC", value = f.resetAll},
+        { text = Language.variables, action="FUNC", value = f.resetVariables},
+        { text = Language.databases, action="FUNC", value = f.resetDatabases},
+        { text = Language.weights, action="FUNC", value = f.resetWeights, onlySupport = true},
+    },
 }
 
-return menusTree
+return menusTree,f

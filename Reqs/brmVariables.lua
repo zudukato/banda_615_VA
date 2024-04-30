@@ -1,5 +1,7 @@
 ---@diagnostic disable: param-type-mismatch, missing-parameter
 ---@class brmClassVariables
+_SavedTables = _SavedTables or {}
+
 local brmClassVariables = {}
 ---@class brmClassVariableTables
 local brmClassVariableTables = {}
@@ -72,6 +74,7 @@ function brmClassVariableTables:new(tableName, defaultValues, autoSave)
     end
     rawset(instance,"_params",defaultValues)
     instance:storeAll()
+    table.insert(_SavedTables,tableName)
     return instance
 end
 
@@ -102,5 +105,12 @@ return {
 
     SavedVariableTable = function (tableName, defaultValues, autoSave)
         return brmClassVariableTables:new(tableName,defaultValues,autoSave)
+    end,
+
+    deleteAllTables = function ()
+        for _, tableName in pairs(_SavedTables) do 
+            awtx.variables.deleteTable(tableName)
+        end
+        awtx.variables.deleteTable("variables")
     end
 }

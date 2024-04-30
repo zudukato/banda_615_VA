@@ -1,6 +1,6 @@
 local brmUtilities = require("Reqs.brmUtilities")
 local brmPeripherals = {}
-ModuleEvents = ModuleEvents or {}
+EventsHandle = EventsHandle or {events={}}
 ---@type table <string,number>
 local _setpointsNumbers = {
     DAP1 = 39,
@@ -36,8 +36,8 @@ PersistentVars.RPRTime = 5000
 function brmPeripherals._checkDAP(setpointNumber, setpointActive)
     ---@type string
     local DAPName = brmUtilities.tableFind(_setpointsNumbers,setpointNumber)
-    if not setpointActive then ModuleEvents[DAPName] = nil return  end
-    ModuleEvents[DAPName]=DAPName.." Active"
+    if not setpointActive then EventsHandle.events[DAPName] = nil return  end
+    EventsHandle.events[DAPName]=DAPName.." Active"
 end
 
 function brmPeripherals.inductorCoil(setpointNum, setpointActive)

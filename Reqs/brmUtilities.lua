@@ -133,4 +133,46 @@ function brmUtilities.tableFind(table, valueToFind)
     return nil
 end
 
+---function to select a file
+---@param path string --the path of files "c:\\something\\...\\"
+---@param extension? string --filter files wite extension
+---@param title? string --The entry title string.
+---@param help? string --The entry help string.
+---@return string
+---@return boolean
+function brmUtilities.selectFile(path, extension, title, help)
+    title = title or ""
+    help = help or ""
+    extension = extension or "*"
+    local tempFiles= awtx.os.getFiles(path.."*."..extension)
+    local files = {}
+    for _,value in pairs(tempFiles) do
+        local extract = value:gsub(path,""):gsub("."..extension,"")
+        table.insert(files, extract)
+    end
+    local stringFiles = table.concat(files,",") 
+    local choice,isEnterKey =awtx.keypad.selectList(stringFiles,1,-1,title,help)
+    return files[choice+1], isEnterKey
+end
+
+---Function to change 
+---@return true|false
+function brmUtilities.changeLanguage()
+    local languagesPath= "c:\\Apps\\Languages\\"
+    local extension = "lua"
+    local selectString = (Language and Language.select) and Language.select or "Select"
+    local languageString = (Language and Language.language) and Language.language or "Language"
+    local language, isEnterKey = brmUtilities.selectFile(languagesPath,extension,selectString, languageString)
+    if isEnterKey then 
+        PersistentVars.language = language
+        Language = require("Languages."..language)
+    end
+    return isEnterKey
+end
+
+function brmUtilities.reboot()
+    brmUtilities.doScroll("rebooting", 1000)
+    awtx.hardware.reboot()
+end
+
 return brmUtilities

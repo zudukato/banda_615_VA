@@ -1,3 +1,4 @@
+---@diagnostic disable: inject-field
 --[[
     If you change the definition of tables remember delete the previos databases 
 ]]
