@@ -1,20 +1,20 @@
 local brmUtilities = require("Reqs.brmUtilities")
 local brmPeripherals = {}
-EventsHandle = EventsHandle or {events={}}
+EventsHandle = EventsHandle or {events={}, eventList={}}
 ---@type table <string,number>
-local _setpointsNumbers = {
-    DAP1 = 39,
-    DAP2 = 38,
-    DAP3 = 37,
-    DAP4 = 36,
-    inductorCoil1 = 35,
-    inductorCoil2 = 34,
-    LCT1= 33,
-    LCT2= 32,
-    openBarrier1 = 31,
-    openBarrier2 = 30,
-    closeBarrier1 = 29,
-    closeBarrier2 = 28,
+local _setpointNumbers = {
+    DAP1 = 37,
+    DAP2 = 36,
+    DAP3 = 35,
+    DAP4 = 34,
+    inductorCoil1 = 33,
+    inductorCoil2 = 32,
+    LCT1= 31,
+    LCT2= 30,
+    openBarrier1 = 29,
+    openBarrier2 = 28,
+    closeBarrier1 = 27,
+    closeBarrier2 = 26,
 }
 local _RPRProtocol = 8
 local timersNum = {
@@ -35,9 +35,9 @@ PersistentVars.RPRTime = 5000
 ------------ DAPS -------------
 function brmPeripherals._checkDAP(setpointNumber, setpointActive)
     ---@type string
-    local DAPName = brmUtilities.tableFind(_setpointsNumbers,setpointNumber)
+    local DAPName = brmUtilities.tableFind(_setpointNumbers,setpointNumber)
     if not setpointActive then EventsHandle.events[DAPName] = nil return  end
-    EventsHandle.events[DAPName]=DAPName.." Active"
+    EventsHandle.events[DAPName]= true
 end
 
 function brmPeripherals.inductorCoil(setpointNum, setpointActive)
@@ -47,10 +47,10 @@ function brmPeripherals.inductorCoil(setpointNum, setpointActive)
         return
     end
     brmPeripherals._blinkActive = true
-    if setpointNum == _setpointsNumbers.inductorCoil1 then
+    if setpointNum == _setpointNumbers.inductorCoil1 then
         return brmPeripherals.start1()
     end
-    if setpointNum == _setpointsNumbers.inductorCoil2 then
+    if setpointNum == _setpointNumbers.inductorCoil2 then
         return brmPeripherals.start2()
     end
 end
@@ -61,47 +61,47 @@ brmPeripherals._blinkActive = false
 
 function brmPeripherals.LCT1Green()
     if not PersistentVars.LCTInverted then
-        return awtx.setpoint.activate(_setpointsNumbers.LCT1)
+        return awtx.setpoint.activate(_setpointNumbers.LCT1)
     end
-    awtx.setpoint.deactivate(_setpointsNumbers.LCT1)
+    awtx.setpoint.deactivate(_setpointNumbers.LCT1)
     
 end
 
 function brmPeripherals.LCT2Green()
     if not PersistentVars.LCTInverted then
-        return awtx.setpoint.activate(_setpointsNumbers.LCT2)
+        return awtx.setpoint.activate(_setpointNumbers.LCT2)
     end
-    awtx.setpoint.deactivate(_setpointsNumbers.LCT2)
+    awtx.setpoint.deactivate(_setpointNumbers.LCT2)
 end
 
 function brmPeripherals.LCT1Red()
     if not PersistentVars.LCTInverted then
-        return awtx.setpoint.deactivate(_setpointsNumbers.LCT1)
+        return awtx.setpoint.deactivate(_setpointNumbers.LCT1)
     end
-        awtx.setpoint.activate(_setpointsNumbers.LCT1)
+        awtx.setpoint.activate(_setpointNumbers.LCT1)
 end
 
 function brmPeripherals.LCT2Red()
     if not PersistentVars.LCTInverted then
-        return awtx.setpoint.deactivate(_setpointsNumbers.LCT2)
+        return awtx.setpoint.deactivate(_setpointNumbers.LCT2)
     end
-    awtx.setpoint.activate(_setpointsNumbers.LCT2)
+    awtx.setpoint.activate(_setpointNumbers.LCT2)
 end
 
 function brmPeripherals.LCT1Blink()
     while brmPeripherals._blinkActive do
-        awtx.setpoint.activate(_setpointsNumbers.LCT1)
+        awtx.setpoint.activate(_setpointNumbers.LCT1)
         awtx.os.systemEvents(500)
-        awtx.setpoint.deactivate(_setpointsNumbers.LCT1)
+        awtx.setpoint.deactivate(_setpointNumbers.LCT1)
         awtx.os.systemEvents(500)
     end
 end
 
 function  brmPeripherals.LCT2Blink()
     while brmPeripherals._blinkActive do
-        awtx.setpoint.activate(_setpointsNumbers.LCT2)
+        awtx.setpoint.activate(_setpointNumbers.LCT2)
         awtx.os.systemEvents(500)
-        awtx.setpoint.deactivate(_setpointsNumbers.LCT2)
+        awtx.setpoint.deactivate(_setpointNumbers.LCT2)
         awtx.os.systemEvents(500)
     end
 end
@@ -109,19 +109,19 @@ end
 ------------- Barrier ----------------
 
 function brmPeripherals.openBarrier1()
-    awtx.setpoint.activate(_setpointsNumbers.openBarrier1)
+    awtx.setpoint.activate(_setpointNumbers.openBarrier1)
 end
 
 function brmPeripherals.openBarrier2()
-    awtx.setpoint.activate(_setpointsNumbers.openBarrier2)
+    awtx.setpoint.activate(_setpointNumbers.openBarrier2)
 end
 
 function brmPeripherals.closeBarrier1()
-    awtx.setpoint.activate(_setpointsNumbers.openBarrier1)
+    awtx.setpoint.activate(_setpointNumbers.openBarrier1)
 end
 
 function brmPeripherals.closeBarrier2()
-    awtx.setpoint.activate(_setpointsNumbers.openBarrier2)
+    awtx.setpoint.activate(_setpointNumbers.openBarrier2)
 end
 
 -------------RPR--------------------
@@ -220,10 +220,14 @@ end
 
 
 function brmPeripherals.onStart()
+    EventsHandle.eventList.DAP1 = "DAP1"
+    EventsHandle.eventList.DAP2 = "DAP2"
+    EventsHandle.eventList.DAP3 = "DAP3"
+    EventsHandle.eventList.DAP4 = "DAP4"
     -------------Setpoints Definition----------------------
-    awtx.setpoint.registerInputEvent(_setpointsNumbers.DAP1,brmPeripherals._checkDAP)
-    awtx.setpoint.registerInputEvent(_setpointsNumbers.inductorCoil1,brmPeripherals.inductorCoil)
-    awtx.setpoint.registerInputEvent(_setpointsNumbers.inductorCoil2,brmPeripherals.inductorCoil)
+    awtx.setpoint.registerInputEvent(_setpointNumbers.DAP1,brmPeripherals._checkDAP)
+    awtx.setpoint.registerInputEvent(_setpointNumbers.inductorCoil1,brmPeripherals.inductorCoil)
+    awtx.setpoint.registerInputEvent(_setpointNumbers.inductorCoil2,brmPeripherals.inductorCoil)
 
     ------------Timers Definition--------------------------
     brmPeripherals._LCT1blinkTimer = awtx.os.enhancedTimer.new(timersNum.LCT1Blink,
