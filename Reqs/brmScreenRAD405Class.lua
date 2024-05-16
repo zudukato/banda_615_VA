@@ -1,42 +1,40 @@
 ---@diagnostic disable: duplicate-set-field
-
+if _ScreenRAD405 then return _ScreenRAD405 end
 local brmUtilities = require("Reqs.brmUtilities")
 local awtxConstants = require("Reqs.awtxReqConstants")
 local _names = {}
-if not _ScreenRAD405 then
-    ---@class screenRad405
-    _ScreenRAD405 = {
-        ---@type table
-        _names = {},
-        ---@type string
-        screenName = "",
-        ---@type table
-        screen = {},
-        ---@type label
-        _label1  = awtx.graphics.label.new("label1"),
-        ---@type label
-        _label2  = awtx.graphics.label.new("label2"),
-        ---@type label
-        _label3  = awtx.graphics.label.new("label3"),
-        ---@type label
-        _segment = nil,
-        ---@type string|nil
-        segmentText = nil,
-        ---@type string
-        textLabel1 = "",
-        ---@type string
-        textLabel2 = "",
-        ---@type string
-        textLabel3 = "",
-    }
-    _ScreenRAD405.__index = _ScreenRAD405
-    _ScreenRAD405._label1:setLocation(0,0)
-    _ScreenRAD405._label2:setLocation(0,6)
-    _ScreenRAD405._label3:setLocation(0,11)
-    _ScreenRAD405._label1:reSize(40, 5)
-    _ScreenRAD405._label2:reSize(40, 5)
-    _ScreenRAD405._label3:reSize(40, 5)
-end
+---@class screenRad405
+_ScreenRAD405 = {
+    ---@type table
+    _names = {},
+    ---@type string
+    screenName = "",
+    ---@type table
+    screen = {},
+    ---@type label
+    _label1  = awtx.graphics.label.new("label1"),
+    ---@type label
+    _label2  = awtx.graphics.label.new("label2"),
+    ---@type label
+    _label3  = awtx.graphics.label.new("label3"),
+    ---@type label
+    _segment = nil,
+    ---@type string|nil
+    segmentText = nil,
+    ---@type string
+    textLabel1 = "",
+    ---@type string
+    textLabel2 = "",
+    ---@type string
+    textLabel3 = "",
+}
+_ScreenRAD405.__index = _ScreenRAD405
+_ScreenRAD405._label1:setLocation(0,0)
+_ScreenRAD405._label2:setLocation(0,6)
+_ScreenRAD405._label3:setLocation(0,11)
+_ScreenRAD405._label1:reSize(40, 5)
+_ScreenRAD405._label2:reSize(40, 5)
+_ScreenRAD405._label3:reSize(40, 5)
 ---Template of a screen for a RAD405
 ---@param screenName string
 ---@param textLabel1? string
@@ -83,6 +81,7 @@ function _ScreenRAD405:show()
     self._label3:setText(self.textLabel3)
     if type(self.segmentText) == "string" then self._segment:setText(self.segmentText) end
     self.screen:show()
+    _ActiveScreen = self
     return beforeMode
 end
 
@@ -91,6 +90,7 @@ function _ScreenRAD405:clear()
     self._label1:setVisible(false)
     self._label2:setVisible(false)
     self._label3:setVisible(false)
+    _ActiveScreen = nil
     awtx.display.setMode(awtxConstants.display.MODE_SCALE)
 end
 
