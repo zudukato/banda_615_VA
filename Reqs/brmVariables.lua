@@ -58,8 +58,8 @@ end
 
 ---Function to create a new instance of brmClassVariables
 ---@param tableName string --Name of the table to store
----@param defaultValues number|string|boolean|table --Default value to saved if not already exist
----@param autoSave any --If when you change the variable saved
+---@param defaultValues table --Default value to saved if not already exist
+---@param autoSave boolean --If when you change the variable saved
 ---@return brmClassVariables
 function brmClassVariableTables:new(tableName, defaultValues, autoSave)
     local instance = {}

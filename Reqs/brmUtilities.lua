@@ -74,11 +74,15 @@ end
 ---Function to wait scale stability and write "Inestable" while scale motion
 ---@param scale integer --number of scale
 function brmUtilities.waitStability(scale)
+    local preCurrentMode = CurrentMode
+    local waitK = {_name = "waitStability" ,keypad = {} }
     if type(scale) ~= "number" then print("scale should be a number") return end
     local currentDisplayMode = awtx.display.setMode(awtxConstants.display.MODE_USER)
     awtx.display.writeLine("Inestable")
     while awtx.weight.getCurrent(scale).motion do awtx.os.systemEvents(200) end
+    awtx.display.writeLine("Inestable",10)
     awtx.display.setMode(currentDisplayMode)
+    CurrentMode = CurrentMode
 end
 
 ---Function to get kes, values of a table

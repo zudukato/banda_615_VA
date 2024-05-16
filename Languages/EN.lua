@@ -2,6 +2,7 @@
 local language = {
     _name = "ENGLISH",
     ready = "READY",
+    new = "NEW",
     enter = "ENTER",
     driver = "DRIVER",
     name = "NAME",
@@ -12,6 +13,7 @@ local language = {
     id = "ID",
     ok = "OK",
     active = "ACTIVE",
+    change = "CHANGE",
     peripherals = "PERIPHERALS",
     exit = "EXIT",
     ticket = "TICKET",
@@ -29,14 +31,14 @@ local language = {
     weight = "WEIGHT",
     weights = "WEIGHTS",
     databases = "databases",
-    questionSign= "?",
+    questionSign = "?",
     done = "DONE",
     cancel = "CANCEL",
     select = "SELECT",
     language = "LANGUAGE",
     sentinel = "SENTINEL",
     variables = "VARIABLES",
-    all= "ALL",
+    all = "ALL",
     reset = "RESET",
     reboot = "REBOOT",
     no = "NO",
@@ -45,7 +47,8 @@ local language = {
     --------phrases--------
     ---@class _phrases
     _phrases = {
-        resetAll = "Reset All",
+        resetAll = "RESET ALL",
+        noPassword = "NO PASSWORD",
         isRequired = " IS REQUIRED",
         noZero = "NO ZERO",
         noMinWeight = "CANT, NO MIN WEIGHT",
@@ -62,10 +65,12 @@ local language = {
 
 
 }
-local notReturnNull = {__index = function (self,key)
-    return rawget(self,key) or string.format("$%s",key)
-end}
-setmetatable(language._phrases,notReturnNull)
+local notReturnNull = {
+    __index = function(self, key)
+        return rawget(self, key) or string.format("$%s", key)
+    end
+}
+setmetatable(language._phrases, notReturnNull)
 setmetatable(language, notReturnNull)
 
 

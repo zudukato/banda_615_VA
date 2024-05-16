@@ -17,7 +17,7 @@ Functions:
   return brmScaleKeys.keyHandle("onXXXKeyDown")
   return brmScaleKeys.keyHandle("onXXXKeyHold")
   return brmScaleKeys.keyHandle("onXXXKeyUp")
-  
+
 Event Handlers:
 -- Leave these as-is as they create your hold events.
 -- Redefine them if you want to change or use the REPEAT event for each key
@@ -34,53 +34,95 @@ Change History:
 ]]
 
 -- create the keypad namespace
-local brmScaleKeys = {}
-local awtxReqConstants = require("Reqs.awtxReqConstants")
+local brmScaleKeys            = {}
+local awtxReqConstants        = require("Reqs.awtxReqConstants")
+local brmUtilities            = require("Reqs.brmUtilities")
 
 -- define how many repeat events create a HOLD event for the keys
 local HowManyRepeatsMakeAHold = 3
 
 -- Flags for counting the number of hold events for each key.
-local tareHoldFlag = 0
-local selectHoldFlag = 0
-local printHoldFlag = 0
-local unitsHoldFlag = 0
-local sampleHoldFlag = 0
-local startHoldFlag = 0
-local stopHoldFlag = 0
-local f1HoldFlag = 0
-local scaleSelectHoldFlag = 0
-local setupHoldFlag = 0
-local targetHoldFlag = 0
-local numericHoldFlag = 0
-local clearHoldFlag = 0
-local decimalHoldFlag = 0
-local zeroHoldFlag = 0
+local tareHoldFlag            = 0
+local selectHoldFlag          = 0
+local printHoldFlag           = 0
+local unitsHoldFlag           = 0
+local sampleHoldFlag          = 0
+local startHoldFlag           = 0
+local stopHoldFlag            = 0
+local f1HoldFlag              = 0
+local scaleSelectHoldFlag     = 0
+local setupHoldFlag           = 0
+local targetHoldFlag          = 0
+local numericHoldFlag         = 0
+local clearHoldFlag           = 0
+local decimalHoldFlag         = 0
+local zeroHoldFlag            = 0
 
 
----Function to wait to press a key 
+---Function to wait to press a key
 ---caution! it function block all the keys except setup, but another function event how change the screen can be activated
----@param key string
-function brmScaleKeys.waitKey(key)
+---@param key string --key to press
+---@param waitMotion? boolean -- if you want to wait for stability
+function brmScaleKeys.waitKey(key, waitMotion)
   local preCurrentMode = CurrentMode
-  local waitK = {_name = "waitKey" ,keypad = {} }
+  local waitK = { _name = "waitKey", keypad = {} }
   local flag = nil
-  waitK.keypad.onF1KeyUp = function () flag = false  end
-  waitK.keypad[key] = function () flag = true  end
+  waitK.keypad.onF1KeyUp = function() flag = false end
+  waitK.keypad[key] = function() flag = true end
   CurrentMode = waitK
-  while type(flag)=="nil" do awtx.os.systemEvents(200) end
+  while type(flag) == "nil" do awtx.os.systemEvents(200) end
+  if waitMotion == true then brmUtilities.waitStability(1) end
   CurrentMode = preCurrentMode
   return flag
 end
 
-function brmScaleKeys.keyHandle(keyEvent,...)
+function brmScaleKeys.keyHandle(keyEvent, ...)
+  if type(CurrentMode.keypad)=="nil" then return end
   if CurrentMode.keypad[keyEvent] then return CurrentMode.keypad[keyEvent](arg) end
 end
 
+function brmScaleKeys.rpnHandle(keyEvent,number, ...)
+  if type(CurrentMode.rpn)=="nil" then return end
+  if CurrentMode.rpn[keyEvent] then return 
+    CurrentMode.rpn[keyEvent](number) end
+end
+
+brmScaleKeys.defaultKeypad = {
+  onTareKeyHold = function()
+    awtx.weight.requestTareClear()
+    brmUtilities.doScroll(Language.done)
+  end,
+  onSelectKeyUp = function()
+    awtx.weight.cycleActiveValue()
+  end,
+  onPrintKeyDown = function()
+    awtx.weight.requestPrint()
+  end,
+  onZeroKeyDown = function()
+    awtx.weight.requestZero()
+  end,
+  onSelectKeyDown = function()
+    awtx.weight.cycleActiveScale()
+  end,
+
+}
+brmScaleKeys.defaultRpn = {
+  TARE = function (number)
+    local newTare = tonumber(number)
+    awtx.weight.requestKeyboardTare(newTare)
+  end,
+  ZERO = function (number)
+    local newZero = tonumber(number)
+    awtx.weight.requestKeyboardZero(newZero)
+  end
+}
+
 function brmScaleKeys.onStart()
+    awtx.keypad.setRpnMode(1) -- 1 for enable
+    awtx.keypad.registerRpnEvent(brmScaleKeys.rpnHandle) -- 1 for enable
   -------------------------------------Definition of keys---------------------------------------
----------------------------------- Tare Key Default Functions ----------------------------------
-------------------------------------------------------------------------------------------------
+  ---------------------------------- Tare Key Default Functions ----------------------------------
+  ------------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_TARE_DOWN()
     tareHoldFlag = 0
     return brmScaleKeys.keyHandle("onTareKeyDown")
@@ -100,13 +142,11 @@ function brmScaleKeys.onStart()
     tareHoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Select Key Event Handlers
   -----------------------------------------------------------------------------------------------
   function awtx.keypad.KEY_SELECT_DOWN()
     selectHoldFlag = 0
-    awtx.weight.cycleActiveValue()
     return brmScaleKeys.keyHandle("onSelectKeyDown")
   end
 
@@ -123,7 +163,6 @@ function brmScaleKeys.onStart()
     end
     selectHoldFlag = 0
   end
-
 
   -----------------------------------------------------------------------------------------------
   -- Print Key Event Handlers
@@ -147,7 +186,6 @@ function brmScaleKeys.onStart()
     printHoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Units Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -169,7 +207,6 @@ function brmScaleKeys.onStart()
     end
     unitsHoldFlag = 0
   end
-
 
   -----------------------------------------------------------------------------------------------
   -- Zero Key Event Handlers
@@ -193,7 +230,6 @@ function brmScaleKeys.onStart()
     zeroHoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Sample Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -215,7 +251,6 @@ function brmScaleKeys.onStart()
     end
     sampleHoldFlag = 0
   end
-
 
   -----------------------------------------------------------------------------------------------
   -- Start Key Event Handlers
@@ -239,7 +274,6 @@ function brmScaleKeys.onStart()
     startHoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Stop Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -261,7 +295,6 @@ function brmScaleKeys.onStart()
     end
     stopHoldFlag = 0
   end
-
 
   -----------------------------------------------------------------------------------------------
   -- F1 Key Event Handlers
@@ -285,7 +318,6 @@ function brmScaleKeys.onStart()
     f1HoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Scale Select Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -307,7 +339,6 @@ function brmScaleKeys.onStart()
     end
     scaleSelectHoldFlag = 0
   end
-
 
   -----------------------------------------------------------------------------------------------
   -- Setup Key Event Handlers
@@ -331,7 +362,6 @@ function brmScaleKeys.onStart()
     setupHoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Target Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -353,7 +383,6 @@ function brmScaleKeys.onStart()
     end
     targetHoldFlag = 0
   end
-
 
   -----------------------------------------------------------------------------------------------
   -- Numeric Key Event Handlers
@@ -377,7 +406,6 @@ function brmScaleKeys.onStart()
     numericHoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Clear Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -400,7 +428,6 @@ function brmScaleKeys.onStart()
     clearHoldFlag = 0
   end
 
-
   -----------------------------------------------------------------------------------------------
   -- Decimal Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -422,7 +449,7 @@ function brmScaleKeys.onStart()
     end
     decimalHoldFlag = 0
   end
-
 end
+
 brmScaleKeys.onStart()
 return brmScaleKeys

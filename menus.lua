@@ -24,10 +24,11 @@ end
 ---function to change the user password
 function f.changeUserPassword()
     local selection, newPassword, isEnterKey
-    selection, isEnterKey = awtx.keypad.selectList("SI,NO", 1, -1, "Cambiar", "Pass?")
+    local options = Language.yes..','..Language.no
+    selection, isEnterKey = awtx.keypad.selectList(options, 1, -1, Language.change, Language.password)
     if not isEnterKey or selection ~= 0 then return end
-    newPassword, isEnterKey = awtx.keypad.enterInteger(0, 4, 4, -1, "nueva", "pass")
-    if not isEnterKey then return brmUtilities.doScroll("No Password") end
+    newPassword, isEnterKey = awtx.keypad.enterInteger(0, 4, 4, -1, Language.new, Language.password)
+    if not isEnterKey then return brmUtilities.doScroll(Language._phrases.noPassword) end
     PersistentVars.userPassword = tostring(newPassword)
 end
 
