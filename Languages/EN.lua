@@ -43,6 +43,7 @@ local language = {
     reboot = "REBOOT",
     no = "NO",
     yes = "YES",
+    error = "ERROR",
 
     --------phrases--------
     ---@class _phrases
@@ -60,7 +61,10 @@ local language = {
         chPassword = "CH.CHPASSWORD",
         ticketNumber = " TICK.NUM",
         idDoNotExist = "ID DO NOT EXIST",
+        alreadyExist= "ALREADY EXIST",
+        enterValue= "ENTERVALUE",
         pesadasDB = "PESADASDB",
+        enterId = "ENTERID",
     }
 
 

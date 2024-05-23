@@ -16,7 +16,7 @@ function f.changeHeaders(headerNum)
 end
 
 function f.changeTicketNumber()
-    local isEnterKey, number = awtx.keypad.enterInteger(PersistentVars.ticketNumber,1,99999,-1,Language.enter,Language._phrases.ticketNumber)
+    local number, isEnterKey = awtx.keypad.enterInteger(PersistentVars.ticketNumber,1,99999,-1,Language.enter,Language._phrases.ticketNumber)
     if not isEnterKey then return end
     PersistentVars.ticketNumber = number
 end
@@ -38,12 +38,13 @@ function f.databaseAdd()
     local value, id, isEnterKey
     local databaseTable = f._selectTable()
     if not databaseTable then return end
-    id, isEnterKey = awtx.keypad.enterString("", 10, -1, "enterId", "Enter", "ID")
+    id, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterId,
+                                                Language.enter, Language.id)
     if not isEnterKey then return end
-    if #databaseTable:find("id", id) >= 1 then return brmUtilities.doScroll("Already exist", 100) end
-    value, isEnterKey = awtx.keypad.enterString("", 10, -1, "enterValue", "Enter", "Name")
+    if #databaseTable:find("id", id) >= 1 then return brmUtilities.doScroll(Language._phrases.alreadyExist, 100) end
+    value, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterValue, Language.enter, Language.name)
     databaseTable:addRow({ id, value })
-    brmUtilities.doScroll("OK", 500)
+    brmUtilities.doScroll(Language.ok, 500)
 end
 
 ---function to delete a element ito a database 'catalogos'
@@ -51,12 +52,13 @@ function f.databaseDelete()
     local value, id, isEnterKey
     local databaseTable = f._selectTable()
     if not databaseTable then return end
-    id, isEnterKey = awtx.keypad.enterString("", 10, -1, "enterId", "ENTER", "ID")
+    id, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterId,
+                                                Language.enter, Language.id)
     if not isEnterKey then return end
-    if #databaseTable:find("id", id) == 0 then return brmUtilities.doScroll("Not exist", 100) end
+    if #databaseTable:find("id", id) == 0 then return brmUtilities.doScroll(Language._phrases.doNotExist, 100) end
     local _, result = databaseTable:deleteRow("id", id)
-    if not result or result.valuesExec ~= 0 then return brmUtilities.doScroll("Error", 1000) end
-    brmUtilities.doScroll("OK", 500)
+    if not result or result.valuesExec ~= 0 then return brmUtilities.doScroll(Language.error, 1000) end
+    brmUtilities.doScroll(Language.ok, 500)
 end
 
 ---function to delete a element ito a database 'catalogos'
@@ -64,13 +66,14 @@ function f.databaseEdit()
     local value, id, isEnterKey
     local databaseTable = f._selectTable()
     if not databaseTable then return end
-    id, isEnterKey = awtx.keypad.enterString("", 10, -1, "enterId", "ENTER", "ID")
+    id, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterId,
+                                                Language.enter, Language.id)
     if not isEnterKey then return end
-    if #databaseTable:find("id", id) == 0 then return brmUtilities.doScroll("Not exist", 100) end
-    value, isEnterKey = awtx.keypad.enterString("", 10, -1, "enterValue", "Enter", "Name")
+    if #databaseTable:find("id", id) == 0 then return brmUtilities.doScroll(Language._phrases.doNotExist, 100) end
+    value, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterValue, Language.enter, Language.name)
     local _, result = databaseTable:updateRow({ value = value }, "id", id)
-    if not result or result.valuesExec ~= 0 then return brmUtilities.doScroll("Error", 1000) end
-    brmUtilities.doScroll("OK", 500)
+    if not result or result.valuesExec ~= 0 then return brmUtilities.doScroll(Language.error, 1000) end
+    brmUtilities.doScroll(Language.ok, 500)
 end
 
 --- To select a database table
@@ -79,7 +82,7 @@ function f._selectTable()
     local options = { "productos", "empresas", "taras" }
     local databaseTableName = nil
     local choice, isEnterKey
-    choice, isEnterKey = awtx.keypad.selectList(table.concat(options, ","), 0, -1, "SELECCIONE", "CAT.")
+    choice, isEnterKey = awtx.keypad.selectList(table.concat(options, ","), 0, -1, Language.select,Language.catalogs)
     if not isEnterKey then return end
     databaseTableName = options[choice + 1]
     local databaseTable = Databases.catalogos[databaseTableName]
