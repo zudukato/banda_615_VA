@@ -137,6 +137,18 @@ function brmUtilities.tableFind(table, valueToFind)
     return nil
 end
 
+--- function to copy a table
+---@param from any
+---@return table?
+function brmUtilities.tableCopy(from)
+    if type(from) ~= "table" then return print("its not a table") end
+    local to = {}
+    for i,v in pairs(from) do
+        to[i] = v
+    end
+    return to
+end
+
 ---function to select a file
 ---@param path string --the path of files "c:\\something\\...\\"
 ---@param extension? string --filter files wite extension
