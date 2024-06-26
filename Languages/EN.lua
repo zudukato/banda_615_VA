@@ -44,6 +44,8 @@ local language = {
     no = "NO",
     yes = "YES",
     error = "ERROR",
+    printing = "PRINTING",
+    format = "FORMAT",
 
     --------phrases--------
     ---@class _phrases
@@ -65,6 +67,8 @@ local language = {
         enterValue= "ENTERVALUE",
         pesadasDB = "PESADASDB",
         enterId = "ENTERID",
+        operationMode = "Oper.Mod",
+        formatDoNotExist= "FORMAT DO NOT EXIT",
     }
 
 

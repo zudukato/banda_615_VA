@@ -255,7 +255,7 @@ MenusTree.config = MenusTree.config or {}
 
 --------MenusTree-----------
 MenusTree.peripherals = {
-    {text = "ENABLE", action ="FUNC" , value = ""},
+    {text = "ENABLE", action ="FUNC" , value = print, params = {1}},
     {text = "LCT", action = "MENU", value = "LCT"},
     {text = "DAP", action = "MENU", value = "DAP"},
     {text = "BARRIER", action = "MENU", value = "barrier"},
