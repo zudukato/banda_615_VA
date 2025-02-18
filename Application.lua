@@ -10,7 +10,6 @@ Description:
 
 --Reqs
 local brmVariables = require("Reqs.brmVariables")
-local brmAppMenu = require("Reqs.brmAppMenu")
 require("Reqs.brmScaleKeys")
 local brmUtilities = require("Reqs.brmUtilities")
 
@@ -99,7 +98,7 @@ local function getModes()
         print(a)
         OperationModes[mode] = require(a)
     end
-    PersistentVars.currentMode = OperationModes[PersistentVars.currentMode]
+    CurrentMode = OperationModes[PersistentVars.currentMode]
 end
 
 
