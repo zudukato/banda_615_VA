@@ -5,7 +5,7 @@ local brmScaleKeys = require("Reqs.brmScaleKeys")
 ---@type language
 
 local normalMode = {}
-normalMode.operationsActive = true
+normalMode.operationActive = true
 normalMode.keypad = {}
 local screens = {
     weightOk = screen405:new("weightOk", Language.weight, Language.ok..Language.questionSign,nil,false)
@@ -72,7 +72,7 @@ function normalMode.secondWt(plate)
 end
 
 function normalMode._takeFullPlates()
-    if not normalMode.operationsActive then return end
+    if not normalMode.operationActive then return end
 end
 
 function normalMode.fullFirstWt(plates)
@@ -85,7 +85,7 @@ function normalMode.simpleWt()
 end
 
 function normalMode._takePlates()
-    if not normalMode.operationsActive then return end
+    if not normalMode.operationActive then return end
     -- if not ModuleEvents.notBackToZero then brmUtilities.doScroll(language._phrases.noZero) end
     local value, isEnterKey = awtx.keypad.enterString("", 1000,-1,Language.enter,Language.plates)
     if not isEnterKey then return end

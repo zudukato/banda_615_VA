@@ -60,31 +60,33 @@ local zeroHoldFlag            = 0
 
 
 ---Function to wait to press a key
----caution! it function block all the keys except setup, but another function event how change the screen can be activated
+---caution! it function block all the keys except Setup and F1(cancel), this function do not block another call to currentMode or function event how change the screen
 ---@param key string --key to press
 ---@param waitMotion? boolean -- if you want to wait for stability
 function brmScaleKeys.waitKey(key, waitMotion)
-  local preCurrentMode = CurrentMode
-  local waitK = { _name = "waitKey", keypad = {} }
+  local preCurrentMode = OperationModes
+  local waitK = preCurrentMode
   local flag = nil
+  waitK["_name"]= "waitKey"
+  waitK.keypad = {}
   waitK.keypad.onF1KeyUp = function() flag = false end
   waitK.keypad[key] = function() flag = true end
-  CurrentMode = waitK
+  OperationModes = waitK
   while type(flag) == "nil" do awtx.os.systemEvents(200) end
   if waitMotion == true then brmUtilities.waitStability(1) end
-  CurrentMode = preCurrentMode
+  OperationModes = preCurrentMode
   return flag
 end
 
 function brmScaleKeys.keyHandle(keyEvent, ...)
-  if type(CurrentMode.keypad)=="nil" then return end
-  if CurrentMode.keypad[keyEvent] then return CurrentMode.keypad[keyEvent](arg) end
+  if type(OperationModes.keypad)=="nil" then return end
+  if OperationModes.keypad[keyEvent] then return OperationModes.keypad[keyEvent](arg) end
 end
 
 function brmScaleKeys.rpnHandle(keyEvent,number, ...)
-  if type(CurrentMode.rpn)=="nil" then return end
-  if CurrentMode.rpn[keyEvent] then return 
-    CurrentMode.rpn[keyEvent](number) end
+  if type(OperationModes.rpn)=="nil" then return end
+  if OperationModes.rpn[keyEvent] then return 
+    OperationModes.rpn[keyEvent](number) end
 end
 
 brmScaleKeys.defaultKeypad = {
