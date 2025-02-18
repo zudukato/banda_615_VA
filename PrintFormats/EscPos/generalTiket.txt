@@ -1,0 +1,7 @@
+{header1}
+{header2}
+
+
+bruto:  kg
+tara:   kg
+neto:   kg

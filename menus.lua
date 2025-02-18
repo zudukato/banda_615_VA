@@ -137,6 +137,9 @@ function f.resetAll()
     brmUtilities.reboot()
 end
 
+function f.changeOperationMode()
+end
+
 local menusTree = 
 {
     topMenu = {
@@ -161,6 +164,7 @@ local menusTree =
         { text = Language.edit,   action = "FUNC", value = f.databaseEdit },
     },
     config = {
+        { text = Language._phrases.operationMode, action = "FUNC", value = f.changeOperationMode},
     },
     reset = {
         { text = Language._phrases.resetAll, action="FUNC", value = f.resetAll},

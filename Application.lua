@@ -10,7 +10,6 @@ Description:
 
 --Reqs
 local brmVariables = require("Reqs.brmVariables")
-local brmAppMenu = require("Reqs.brmAppMenu")
 require("Reqs.brmScaleKeys")
 local brmUtilities = require("Reqs.brmUtilities")
 
@@ -18,7 +17,7 @@ local brmUtilities = require("Reqs.brmUtilities")
 ------------------- Persistent variables for normal application -------------------
 --default values
 PersistentVars = PersistentVars or {}
-PersistentVars.currentMode = "main"--provisional
+PersistentVars.currentMode = "NormalWeight"--provisional
 PersistentVars.minWt = 200--min weight
 PersistentVars.supportPasswords = "762" --support password
 PersistentVars.userPassword = "1793" --user password
@@ -29,6 +28,8 @@ PersistentVars.zeroThreshold = 100
 PersistentVars.zeroTareClear = false
 PersistentVars.backToZeroActive = true
 PersistentVars.language = "$"
+PersistentVars.printer = "EscPos"
+PersistentVars.interLineTime = 100
 
 -- persistent value assignation recalling last saved value
 -- to access "persistentVariable.nameOfVariable.value"
@@ -86,10 +87,20 @@ local function onMinWt(_, setpointActive)
 end
 
 --------------------------------------Modules--------------------------------------
-local brmChain = require("Peripherals.brmChain")
+OperationModes = {}
+local brmChain = require("Reqs.brmChain")
 local peripherals = require("Peripherals.brmPeripherals")
+local function getModes()
+    local path = "C:\\Apps\\operationModes\\"
+    local modes = brmUtilities.getFolders(path)
+    for _, mode in pairs(modes) do
+        local a = "OperationModes."..mode..".".."main"
+        print(a)
+        OperationModes[mode] = require(a)
+    end
+    CurrentMode = OperationModes[PersistentVars.currentMode]
+end
 
-CurrentMode = require("operationModes.normalWeight.main")
 
 
 local function onStart()
@@ -99,3 +110,5 @@ local function onStart()
 end
 onStart()
 brmChain.onStart()
+getModes()
+

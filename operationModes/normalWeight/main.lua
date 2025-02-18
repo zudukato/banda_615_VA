@@ -138,4 +138,17 @@ normalMode.rpn= brmScaleKeys.defaultRpn
 function normalMode.keypad.onStartKeyDown()
     return normalMode._takePlates()
 end
+function normalMode.keypad.onPrintKeyDown()
+    Printer.doPrint(Printer.printers.EscPos.firstW)
+    -- local file = io.open("C:\\Apps\\PrintFormats\\firstW.txt")
+    -- local dato = file:read('*all')
+    -- local datos = brmUtilities.split(dato,'\r\n')
+    -- file:close()
+    -- for _,line in pairs(datos) do
+    --     awtx.fmtPrint.set(1,line.."\r\n")
+    --     awtx.weight.getRefreshLastPrint(1)
+    --     awtx.printer.printFmt(1)
+    --     awtx.os.systemEvents(1000)
+    -- end
+end
 return normalMode
