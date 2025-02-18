@@ -10,6 +10,7 @@ Description:
 
 --Reqs
 local brmVariables = require("Reqs.brmVariables")
+require("Reqs.brmAppMenu")
 require("Reqs.brmScaleKeys")
 local brmUtilities = require("Reqs.brmUtilities")
 
