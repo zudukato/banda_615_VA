@@ -46,6 +46,8 @@ local language = {
     error = "ERROR",
     printing = "PRINTING",
     format = "FORMAT",
+    operation = "OPERATION",
+    mode = "MODE",
 
     --------phrases--------
     ---@class _phrases
