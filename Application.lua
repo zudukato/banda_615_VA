@@ -99,7 +99,7 @@ local function getModes()
         print(a)
         OperationModes[mode] = require(a)
     end
-    CurrentMode = OperationModes[PersistentVars.currentMode]
+    CurrentMode = OperationModes[PersistentVars.currentMode] or {}
 end
 
 
