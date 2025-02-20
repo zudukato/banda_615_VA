@@ -151,4 +151,7 @@ function normalMode.keypad.onPrintKeyDown()
     --     awtx.os.systemEvents(1000)
     -- end
 end
+normalMode.onStart = function ()
+    print('starting')
+end
 return normalMode

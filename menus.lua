@@ -149,7 +149,7 @@ function f.changeOperationMode()
     PersistentVars.currentMode = newMode
     if CurrentMode.exitMode ~= nil then CurrentMode.exitMode() end
     CurrentMode = OperationModes[PersistentVars.currentMode]
-    if CurrentMode.onStart ~= nil then CurrentMode.onStart() end
+    if type(CurrentMode.onStart) == 'function' then CurrentMode.onStart() end
 end
 
 local menusTree =
