@@ -17,9 +17,10 @@ local brmUtilities = require("Reqs.brmUtilities")
 ------------------------------------ Setup ----------------------------------------
 ------------------- Persistent variables for normal application -------------------
 --default values
+local minWt = 4*awtx.weight.getCurrent(0).curDivision
 PersistentVars = PersistentVars or {}
 PersistentVars.currentMode = "NormalWeight"--provisional
-PersistentVars.minWt = 200--min weight
+PersistentVars.minWt = minWt or 200 --min weight
 PersistentVars.supportPasswords = "762" --support password
 PersistentVars.userPassword = "1793" --user password
 PersistentVars.shortCuts = {["0000"] = "PrintConf"}--user Password

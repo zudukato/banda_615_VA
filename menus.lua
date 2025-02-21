@@ -140,6 +140,16 @@ function f.resetAll()
     brmUtilities.reboot()
 end
 
+function f.changeMinWt()
+    local minWt
+    local isEnterKey
+    local wt = awtx.weight.getCurrent(0)
+    minWt, isEnterKey = awtx.keypad.enterWeightWithUnits(PersistentVars.minWt, wt.curDivision, wt.curDivision,"kg",0)
+    if not isEnterKey then return end
+    brmUtilities.doScroll(Language.ok)
+    PersistentVars.minWt = minWt
+end
+
 function f.changeOperationMode()
     local operationModesKeys = brmUtilities.keysValues(OperationModes)
     local choice = awtx.keypad.selectList(table.concat(operationModesKeys, ","), 0, -1, Language.select,
@@ -176,6 +186,7 @@ local menusTree =
         { text = Language.edit,   action = "FUNC", value = f.databaseEdit },
     },
     config = {
+        { text = Language._phrases.minWt, action = "FUNC", value = f.changeMinWt },
         { text = Language._phrases.operationMode, action = "FUNC", value = f.changeOperationMode },
     },
     reset = {

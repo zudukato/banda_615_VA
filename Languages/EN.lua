@@ -71,6 +71,7 @@ local language = {
         enterId = "ENTERID",
         operationMode = "Oper.Mod",
         formatDoNotExist= "FORMAT DO NOT EXIT",
+        minWt = "MIN WEIGHT",
     }
 
 
