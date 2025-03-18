@@ -150,18 +150,6 @@ function f.changeMinWt()
     PersistentVars.minWt = minWt
 end
 
-function f.changeOperationMode()
-    local operationModesKeys = brmUtilities.keysValues(OperationModes)
-    local choice = awtx.keypad.selectList(table.concat(operationModesKeys, ","), 0, -1, Language.select,
-        Language.operation)
-    local newMode =  operationModesKeys[choice+1]
-    if PersistentVars.currentMode == newMode then return end
-    PersistentVars.currentMode = newMode
-    if CurrentMode.exitMode ~= nil then CurrentMode.exitMode() end
-    CurrentMode = OperationModes[PersistentVars.currentMode]
-    if type(CurrentMode.onStart) == 'function' then CurrentMode.onStart() end
-end
-
 local menusTree =
 {
     topMenu = {
@@ -187,7 +175,6 @@ local menusTree =
     },
     config = {
         { text = Language._phrases.minWt, action = "FUNC", value = f.changeMinWt },
-        { text = Language._phrases.operationMode, action = "FUNC", value = f.changeOperationMode },
     },
     reset = {
         { text = Language._phrases.resetAll, action = "FUNC", value = f.resetAll },

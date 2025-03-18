@@ -192,24 +192,26 @@ function brmUtilities.reboot()
     awtx.hardware.reboot()
 end
 
----function who return a table list of folders in a path
----@param path string --the path of files "c:\\something\\...\\"
----@return table
-function brmUtilities.getFolders(path)
-    local files = awtx.os.getFiles(path,true)
-    local aux = {}
-    local folders = {}
-    for _,value in pairs(files) do
-        local txt = string.gsub(value,path,""):match("%w+\\")
-        if txt then
-            txt = txt:gsub("\\","")
-            aux[txt] = true
-        end
-    end
-    for key,_ in pairs(aux) do
-        table.insert(folders,key)
-    end
-    return folders
-end
+
+---DO NOT USE IT, IT'S PROBABLY BROKEN
+-- ---function who return a table list of folders in a path
+-- ---@param path string --the path of files "c:\\something\\...\\"
+-- ---@return table
+-- function brmUtilities.getFolders(path)
+--     local files = awtx.os.getFiles(path,true)
+--     local aux = {}
+--     local folders = {}
+--     for _,value in pairs(files) do
+--         local txt = string.gsub(value,path,""):match("%w+\\")
+--         if txt then
+--             txt = txt:gsub("\\","")
+--             aux[txt] = true
+--         end
+--     end
+--     for key,_ in pairs(aux) do
+--         table.insert(folders,key)
+--     end
+--     return folders
+-- end
 
 return brmUtilities

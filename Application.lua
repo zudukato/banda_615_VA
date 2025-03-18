@@ -89,20 +89,9 @@ local function onMinWt(_, setpointActive)
 end
 
 --------------------------------------Modules--------------------------------------
-OperationModes = {}
 local brmChain = require("Reqs.brmChain")
 local peripherals = require("Peripherals.brmPeripherals")
-local function getModes()
-    local path = "C:\\Apps\\operationModes\\"
-    local modes = brmUtilities.getFolders(path)
-    for _, mode in pairs(modes) do
-        local a = "OperationModes."..mode..".".."main"
-        print(a)
-        OperationModes[mode] = require(a)
-    end
-    CurrentMode = OperationModes[PersistentVars.currentMode] or {}
-end
-
+CurrentMode = require("operationModes.normalWeight.main") or {}
 
 
 local function onStart()
@@ -112,6 +101,5 @@ local function onStart()
     brmChain.onStart()
     if type(CurrentMode.onStart) == 'function' then CurrentMode.onStart() end
 end
-getModes()
 onStart()
 

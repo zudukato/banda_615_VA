@@ -78,6 +78,7 @@ end
 
 function brmScaleKeys.keyHandle(keyEvent, ...)
   if type(CurrentMode.keypad)=="nil" then return end
+---@diagnostic disable-next-line: redundant-parameter
   if CurrentMode.keypad[keyEvent] then return CurrentMode.keypad[keyEvent](arg) end
 end
 
