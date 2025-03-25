@@ -5,7 +5,7 @@ local awtxConstants = require("Reqs.awtxReqConstants")
 ---@param inputString string --string to break
 ---@param delimiter? string --delimiter
 ---@return table <integer,string> --table with the parts
-function brmUtilities.split(inputString, delimiter)
+function string.split(inputString, delimiter)
     delimiter = delimiter or "%S"
     if type(inputString) ~= "string" then print("not input string") return {} end
     if inputString[#inputString] ~= delimiter then inputString = inputString..delimiter end
@@ -89,7 +89,7 @@ end
 ---Function to get kes, values of a table
 ---@param tab table 
 ---@return table, table
-function brmUtilities.keysValues(tab)
+function table.keysValues(tab)
     if type(tab) ~= "table" then return {}, {} end
     local keys, values = {}, {}
     for key, value in pairs(tab) do
@@ -103,7 +103,7 @@ end
 ---@param list table<integer,table<string,any>> --list of tables
 ---@param paramName string|number -- name of param
 ---@return table<integer,any> paramList --table list whit params
-function brmUtilities.extractParam(list, paramName)
+function table.extractParam(list, paramName)
     if type(list) ~= "table" then return {} end
     local paramList = {}
     for _ , tab in pairs(list) do
@@ -112,12 +112,23 @@ function brmUtilities.extractParam(list, paramName)
     return paramList
 end
 
+---function to count number of elements in a table
+---@param tableToCount table 
+---@return integer -- number of elements
+function table.count(tableToCount)
+    local count
+    for i, _ in tableToCount do
+        count = (count or 0) + 1
+    end
+    return count
+end
+
 --- Generates a range of numbers.
 ---@param start number --Initial number of the range.
 ---@param stop number --Final number of the range.
 ---@param step number --Step between numbers in the range. If not specified, defaults to 1. Must be a positive number.
 ---@return table<integer,number>  --containing the numbers in the specified range.
-function brmUtilities.range(start, stop, step)
+function math.range(start, stop, step)
     local rangeTable = {}
     local sign = start>stop and -1 or 1
     step = (step and step ~=0) and math.abs(step) or 1 -- to discard 0 an nil
@@ -131,7 +142,7 @@ end
 ---@param table table
 ---@param valueToFind any
 ---@return string|number|nil
-function brmUtilities.tableFind(table, valueToFind)
+function table.find(table, valueToFind)
     for key, value in pairs(table) do
         if value == valueToFind then return key end
     end
@@ -141,7 +152,7 @@ end
 --- function to copy a table
 ---@param from any
 ---@return table?
-function brmUtilities.tableCopy(from)
+function table.copy(from)
     if type(from) ~= "table" then return print("its not a table") end
     local to = {}
     for i,v in pairs(from) do
@@ -149,6 +160,7 @@ function brmUtilities.tableCopy(from)
     end
     return to
 end
+
 
 ---function to select a file
 ---@param path string --the path of files "c:\\something\\...\\"
@@ -214,4 +226,10 @@ end
 --     return folders
 -- end
 
+brmUtilities.tableCopy = table.copy
+brmUtilities.tableFind = table.find
+brmUtilities.keysValues = table.keysValues
+brmUtilities.extractParam = table.extractParam
+brmUtilities.split = string.split
+brmUtilities.range = math.range
 return brmUtilities
