@@ -116,9 +116,9 @@ end
 ---@param tableToCount table 
 ---@return integer -- number of elements
 function table.count(tableToCount)
-    local count
-    for i, _ in tableToCount do
-        count = (count or 0) + 1
+    local count = 0
+    for i, _ in pairs(tableToCount) do
+        count = count + 1
     end
     return count
 end
