@@ -204,6 +204,16 @@ function brmUtilities.reboot()
     awtx.hardware.reboot()
 end
 
+function brmUtilities.getFirmwareVersion()
+    local version = awtx.os.getVersionInfo("*all")[10].version
+    return version
+end
+
+function brmUtilities.getNumericFirmwareVersion()
+    local version = brmUtilities.getFirmwareVersion()
+    local numericVersion = version:gsub("%.","")
+    return tonumber(numericVersion)
+end
 
 ---DO NOT USE IT, IT'S PROBABLY BROKEN
 -- ---function who return a table list of folders in a path
