@@ -34,6 +34,8 @@
 if _ScreenRAD615 then return _ScreenRAD615 end
 local brmUtilities = require("Reqs.brmUtilities")
 local awtxConstants = require("Reqs.awtxReqConstants")
+local BrmPicturebox = require("Reqs.RAD615Screen.brmPictureBox")
+local BrmComponent = require("Reqs.RAD615Screen.brmComponent")
 local maxLabels = 69
 local maxButtons = 14
 local maxPictureboxes = 11
@@ -57,6 +59,7 @@ _ScreenRAD615 = {
     _pictureboxes = {},
     _textboxes = {}
 }
+
 
 ---Retrieves or creates a label from the internal _labels list by index.
 ---If the label already exists, it is returned. If not and the index is within allowed limits, a new label is created.
@@ -275,7 +278,7 @@ function Screen:newLabel(name, text, location, size, alignment, fontNumber, visi
         return
     end
     local params = prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
-    local label = Component:_new(
+    local label = BrmComponent:_new(
         params.name,
         params.text,
         params.location,
@@ -364,7 +367,7 @@ function Screen:newButton(name, text, location, size, alignment, fontNumber, vis
         return
     end
     local params = prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
-    local button = Component:_new(
+    local button = BrmComponent:_new(
         params.name,
         params.text,
         params.location,
@@ -392,7 +395,7 @@ function Screen:newTextbox(name, text, location, size, alignment, fontNumber, vi
         return
     end
     local params = prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
-    local textbox = Component:_new(
+    local textbox = BrmComponent:_new(
         params.name,
         params.text,
         params.location,
@@ -435,116 +438,5 @@ function Screen:show()
 end
 ----------------------------------Components---------------------------------
 
----@class _ScreenRAD615.screen.component
----@field name string
----@field text string
----@field location Vector2D
----@field size Size
----@field alignment AlignmentID
----@field fontNumber FontID
----@field visible boolean
----@field private _awtxComponent awtx.labelCtrl|awtx.buttonCtrl
-local Component = {}
-Component.__index = Component
----Creates a new component instance (label or button) with given properties.
----
----@param name string             -- Component name
----@param text string             -- Displayed text
----@param location Vector2D       -- Location on screen
----@param size Size               -- Size of the component
----@param alignment AlignmentID   -- Text alignment
----@param fontNumber FontID       -- Font number
----@param visible boolean         -- Whether the component is visible
----@return _ScreenRAD615.screen.component
----@private
-function Component:_new(name, text, location, size, alignment, fontNumber, visible)
-    local instance = {}
-    setmetatable(instance, self)
-    instance.name = name
-    instance.text = text
-    instance.location = location
-    instance.size = size
-    instance.alignment = alignment
-    instance.fontNumber = fontNumber
-    instance.visible = visible
-    return instance
-end
-
-function Component:_init()
-    self._awtxComponent:setText(self.text)
-    self._awtxComponent:setLocation(self.location.x, self.location.y)
-    self._awtxComponent:reSize(self.size.width, self.size.height)
-    self._awtxComponent:setAlignment(self.alignment)
-    self._awtxComponent:setFont(self.fontNumber)
-    self._awtxComponent:setVisible(self.visible)
-end
-
----This function sets the size of the component, you need to redraw the screen
----@param newSize Size
-function Component:reSize(newSize)
-    self.size = newSize
-    if self._awtxComponent then self._awtxComponent:reSize(newSize.width, newSize.height) end
-end
-
----This function sets the alignment of the component, you need to redraw the screen
----@param alignment AlignmentID
-function Component:setAlignment(alignment)
-    self.alignment = alignment
-    if self._awtxComponent then self._awtxComponent:setAlignment(alignment) end
-end
-
----This function sets the font of the component, you need to redraw the screen
----@param fontNumber FontID
-function Component:setFont(fontNumber)
-    self.fontNumber = fontNumber
-    if self._awtxComponent then self._awtxComponent:setFont(fontNumber) end
-end
-
----This function sets the location of the component, you need to redraw the screen
----@param location Vector2D
-function Component:setLocation(location)
-    self.location = location
-    if self._awtxComponent then self._awtxComponent:setLocation(location.x, location.y) end
-end
-
----This function sets the text of component, you need to redraw the screen
----@param text string
-function Component:setText(text)
-    self.text = text
-    if self._awtxComponent then self._awtxComponent:setText(text) end
-end
-
----This function sets the visibility of the component, you need to redraw the screen
----@param visible boolean
-function Component:setVisible(visible)
-    self.visible = visible
-    if self._awtxComponent then self._awtxComponent:setVisible(visible) end
-end
------------------------------Pictureboxes-----------------------------
----@class _ScreenRAD615.screen.picturebox
----@field name string
----@field path string
----@field location Vector2D
----@field visible boolean
----@field private _awtxPicturebox awtx.pictureboxCtrl
-local BrmPicturebox = {}
-BrmPicturebox.__index = BrmPicturebox
-
-function BrmPicturebox:new(name, path, location, visible)
-    local instance = {}
-    setmetatable(instance, self)
-    instance.name = name
-    instance.path = path
-    instance.location = location or { x = 0, y = 0 }
-    instance.visible = visible
-    return instance
-end
-
-function BrmPicturebox:_init()
-    if numericFirmwareVersion == 2500 then
-        self._awtxPicturebox:setBitmap(self.path)
-    end
-    self._awtxPicturebox:setLocation(self.location.x, self.location.y)
-end
 
 return _ScreenRAD615
