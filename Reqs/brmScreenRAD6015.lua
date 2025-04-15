@@ -60,6 +60,50 @@ _ScreenRAD615 = {
     _textboxes = {}
 }
 
+---@class Vector2D
+---@field x number
+---@field y number
+
+---@class Size
+---@field width number
+---@field height number
+
+------------------Screen------------------------------------
+---@class _ScreenRAD615.screen
+---@field labels table<string,_ScreenRAD615.screen.component>
+---@field buttons table<string,_ScreenRAD615.screen.component>
+---@field pictureboxes table<string, _ScreenRAD615.screen.picturebox>
+---@field textboxes table<string,_ScreenRAD615.screen.component>
+---@field private _screen awtx.screenCtrl
+local Screen = {
+}
+Screen.__index = Screen
+
+---Generic get awtxComponent
+---@param type string -- Type of control
+---@param pool table -- The internal storage table (e.g., _ScreenRAD615._labels)
+---@param maxCount integer -- Maximum allowed items
+---@param creatorFn fun(id: string, ...): any Control constructor (should return the created control)
+---@param index integer Index to retrieve or create
+---@param ...  any Additional arguments passed to the creator function
+---@return any|nil
+local _getAwtxControl = function(type, pool, maxCount, creatorFn, index, ...)
+    local totalControls = #pool
+    if index <= totalControls then return pool[index] end
+    if index > totalControls + 1 then
+        print("index error")
+        return
+    end
+    if index > maxCount then
+        print("max limit reached")
+        return
+    end
+    local currentCount = totalControls + 1
+    local control = creatorFn(type .. currentCount, ...)
+    pool[currentCount] = control
+    return control
+end
+
 
 ---Retrieves or creates a label from the internal _labels list by index.
 ---If the label already exists, it is returned. If not and the index is within allowed limits, a new label is created.
@@ -67,20 +111,8 @@ _ScreenRAD615 = {
 ---
 ---@param index integer                 -- Index of the label to retrieve or create
 ---@return awtx.labelCtrl|nil                   -- The label at the given index, or nil if the index exceeds maxLabels
----@private
 local _getAwtxLabel = function(index)
-    local totalLabels = #_ScreenRAD615._labels
-    if index <= totalLabels then return _ScreenRAD615._labels[index] end
-    if index > totalLabels + 1 then
-        print("index error")
-        return
-    end
-    if index > maxLabels then
-        print("max labels")
-        return
-    end
-    _ScreenRAD615._labels[totalLabels + 1] = awtx.graphics.label.new("label" .. totalLabels)
-    return _ScreenRAD615._labels[totalLabels + 1]
+    return _getAwtxControl("label", _ScreenRAD615._labels, maxLabels, awtx.graphics.label.new, index)
 end
 
 ---Retrieves or creates a pooled button control based on index.
@@ -88,20 +120,8 @@ end
 ---
 ---@param index integer                     -- Index of the button (1-based)
 ---@return awtx.buttonCtrl|nil             -- A button control instance or nil if out of bounds
----@private
 local _getAwtxButtons = function(index)
-    local totalButtons = #_ScreenRAD615._buttons
-    if index <= totalButtons then return _ScreenRAD615._buttons[index] end
-    if index > totalButtons + 1 then
-        print("index error")
-        return
-    end
-    if index > maxButtons then
-        print("max button")
-        return
-    end
-    _ScreenRAD615._buttons[totalButtons + 1] = awtx.graphics.button.new("button" .. totalButtons)
-    return _ScreenRAD615._buttons[totalButtons + 1]
+    return _getAwtxControl("button", _ScreenRAD615._buttons, maxButtons, awtx.graphics.button.new, index)
 end
 
 ---Retrieves or creates a pooled button control based on index.
@@ -109,35 +129,13 @@ end
 ---
 ---@param index integer                     -- Index of the button (1-based)
 ---@return awtx.buttonCtrl|nil             -- A button control instance or nil if out of bounds
----@private
 local _getAwtxTextbox = function(index)
-    local totalTextboxes = #_ScreenRAD615._textboxes
-    if index <= totalTextboxes then return _ScreenRAD615._textboxes[index] end
-    if index > totalTextboxes + 1 then
-        print("index error")
-        return
-    end
-    if index > maxTextboxes then
-        print("max textboxes")
-        return
-    end
-    _ScreenRAD615._textboxes[totalTextboxes + 1] = awtx.graphics.textbox.new("textbox" .. totalTextboxes)
-    return _ScreenRAD615._textboxes[totalTextboxes + 1]
+    return _getAwtxControl("textbox", _ScreenRAD615._textboxes, maxTextboxes, awtx.graphics.textbox.new, index)
 end
 
-local _getAwtxScales = function (index, scaleNumber, style)
-    local totalScales = #_ScreenRAD615._scales
-    if index <= totalScales then return _ScreenRAD615._scales[index] end
-    if index > totalScales + 1 then
-        print("index error")
-        return
-    end
-    if index > maxScales then
-        print("max scales")
-        return
-    end
-    _ScreenRAD615._scales[totalScales + 1] = awtx.graphics.scale.new("scale" .. totalScales, scaleNumber, style)
-    return _ScreenRAD615._scales[totalScales + 1]
+
+local _getAwtxScales = function(index, scaleNumber, style)
+    return _getAwtxControl("scale", _ScreenRAD615._scales, maxScales, awtx.graphics.scale.new, index, scaleNumber, style)
 end
 
 ---Retrieves or creates a pooled picturebox control based on index.
@@ -151,68 +149,11 @@ end
 ---@param index integer                     -- Index of the picturebox (1-based)
 ---@param path string                       -- File path for the bitmap image
 ---@return awtx.pictureboxCtrl|nil         -- A picturebox control or nil if out of bounds or unsupported
----@private
 local _getAwtxPicturebox = function(index, path)
-    local totalPictureboxes = #_ScreenRAD615._pictureboxes
-    if numericFirmwareVersion >= 2500 then
-        if index <= totalPictureboxes then return _ScreenRAD615._pictureboxes[index] end
-        if index > totalPictureboxes + 1 then
-            print("index error")
-            return
-        end
-    end
-    if totalPictureboxes >= maxPictureboxes then
-        print("max pictureboxes")
-        return
-    end
-    _ScreenRAD615._pictureboxes[totalPictureboxes + 1] = awtx.graphics.picturebox.new("picturebox" .. totalPictureboxes,
-        path)
-    return _ScreenRAD615._pictureboxes[totalPictureboxes + 1]
+    return _getAwtxControl("picturebox", _ScreenRAD615._pictureboxes, maxPictureboxes, awtx.graphics.picturebox.new,
+        index, path)
 end
 
----Prepares and returns a complete set of component parameters with default values.
----This helper function ensures all component fields are safely initialized, even if not provided.
----
----Useful for avoiding repeated default handling logic in component constructors.
----
----@param name string                 -- Name of the component (must be unique per screen)
----@param text? string               -- Optional display text (default: "")
----@param location? Vector2D        -- Optional screen position (default: { x = 0, y = 0 })
----@param size? Size                -- Optional size of the component (default: { width = 0, height = 0 })
----@param alignment? AlignmentID    -- Optional text alignment (default: 0)
----@param fontNumber? FontID        -- Optional font number (default: 0)
----@param visible? boolean          -- Optional visibility state (default: false)
----@return table                    -- Table containing all initialized component parameters
-local function prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
-    return {
-        name = name,
-        text = text or "",
-        location = location or { x = 0, y = 0 },
-        size = size or { width = 0, height = 0 },
-        alignment = alignment or 0,
-        fontNumber = fontNumber or 0,
-        visible = visible or false
-    }
-end
----@class Vector2D
----@field x number
----@field y number
-
----@class Size
----@field width number
----@field height number
-
-------------------Screen------------------------------------
-
----@class _ScreenRAD615.screen
----@field labels table<string,_ScreenRAD615.screen.component>
----@field buttons table<string,_ScreenRAD615.screen.component>
----@field pictureboxes table<string, _ScreenRAD615.screen.picturebox>
----@field textboxes table<string,_ScreenRAD615.screen.component>
----@field private _screen awtx.screenCtrl
-local Screen = {
-}
-Screen.__index = Screen
 
 ---Creates a new screen instance with a unique name.
 ---
@@ -229,7 +170,6 @@ _ScreenRAD615.newScreen = function(name, labels, buttons, scaleControlNumber)
 end
 
 ---Internal screen constructor. Called by `newScreen`.
----
 ---@param name string                          -- Unique name for the screen
 ---@param labels? table<_ScreenRAD615.screen.component> -- Optional label components to preload
 ---@param buttons? _ScreenRAD615.screen.component[]     -- Optional button components to preload
@@ -250,6 +190,48 @@ function Screen:new(name, labels, buttons, scaleControlNumber)
     instance._screen = awtx.graphics.screens.new(name)
     return instance
 end
+---@alias ComponentMap
+---| "label"
+---| "button"
+---| "textbox"
+local componentMap = {
+    label = { pool = "labels", creator = _getAwtxLabel },
+    button = { pool = "buttons", creator = _getAwtxButtons },
+    textbox = { pool = "textboxes", creator = _getAwtxTextbox },
+    -- future: scale, slider, etc.
+}
+---Generic function to create and add a reusable UI component to the screen.
+---Used for labels, buttons, and textboxes (components backed by BrmComponent and pooled AWTX controls).
+---@param componentType ComponentMap       -- type of component label, button or textbox
+---@param name string             -- Unique identifier for the label
+---@param text? string            -- Optional label text
+---@param location? Vector2D      -- Optional location (default: {x = 0, y = 0})
+---@param size? Size              -- Optional size (default: {width = 0, height = 0})
+---@param alignment? AlignmentID  -- Optional alignment (default: 0)
+---@param fontNumber? FontID      -- Optional font number (default: 0)
+---@param visible? boolean        -- Optional visibility (default: false)
+function Screen:_newComponent(componentType, name, text, location, size, alignment, fontNumber, visible)
+    local def = componentMap[componentType]
+    if not def then
+        print("Unknown component type: " .. tostring(componentType))
+        return
+    end
+    local pool = self[def.pool]
+    if type(name) ~= 'string' then
+        print("name should be a string")
+        return
+    end
+    if pool[name] ~= nil then
+        print("component already exist")
+        return
+    end
+    local component = BrmComponent:_new(name, text, location, size, alignment, fontNumber, visible)
+    local awtxComponent = def.creator(table.count(pool) + 1)
+    if not awtxComponent then return end
+    component._awtxComponent = awtxComponent
+    self._screen:addControl(component._awtxComponent)
+    pool[name] = component
+end
 
 ---Creates and adds a new label to the screen.
 ---Uses a pooled label control from a fixed pool (max 69). Fails silently if name is duplicate or pool exhausted.
@@ -264,34 +246,27 @@ end
 ---@param fontNumber? FontID      -- Optional font number (default: 0)
 ---@param visible? boolean        -- Optional visibility (default: false)
 function Screen:newLabel(name, text, location, size, alignment, fontNumber, visible)
-    local numberOfLabels = table.count(self.labels)
-    if numberOfLabels >= maxLabels then
-        print("MAX LABELS")
-        return
-    end
-    if type(name) ~= 'string' then
-        print("name should be a string")
-        return
-    end
-    if self.labels[name] ~= nil then
-        print("label already exist")
-        return
-    end
-    local params = prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
-    local label = BrmComponent:_new(
-        params.name,
-        params.text,
-        params.location,
-        params.size,
-        params.alignment,
-        params.fontNumber,
-        params.visible
-    )
-    local awtxLabel = _getAwtxLabel(numberOfLabels + 1)
-    if not awtxLabel then return end
-    label._awtxComponent = awtxLabel
-    self._screen:addControl(label._awtxComponent)
-    self.labels[name] = label
+    self:_newComponent("label", name, text, location, size, alignment, fontNumber, visible)
+end
+
+---Creates and adds a new button to the screen.
+---Uses a pooled button control from a fixed pool (max 14). Fails silently if name is duplicate or pool exhausted.
+---
+---Access the button later via: `screenInstance.buttons["buttonName"]` or screenInstance.buttons.buttonName
+---
+---@param name string             -- Unique identifier for the button
+---@param text? string            -- Optional button text
+---@param location? Vector2D      -- Optional location (default: {x = 0, y = 0})
+---@param size? Size              -- Optional size (default: {width = 0, height = 0})
+---@param alignment? AlignmentID  -- Optional alignment (default: 0)
+---@param fontNumber? FontID      -- Optional font number (default: 0)
+---@param visible? boolean        -- Optional visibility (default: false)
+function Screen:newButton(name, text, location, size, alignment, fontNumber, visible)
+    self:_newComponent("button", name, text, location, size, alignment, fontNumber, visible)
+end
+
+function Screen:newTextbox(name, text, location, size, alignment, fontNumber, visible)
+    self:_newComponent("textbox", name, text, location, size, alignment, fontNumber, visible)
 end
 
 ---Creates and adds a new picturebox (image) to the screen.
@@ -328,85 +303,12 @@ function Screen:newPicturebox(name, path, location, visible)
         return
     end
     local numberOfPictureboxes = table.count(self.pictureboxes)
-    if numberOfPictureboxes >= maxPictureboxes then
-        print("Max pictureboxes")
-        return
-    end
-    -- if self.pictureboxes
-    location = location or { x = 0, y = 0 }
-    visible = visible or true
     local BrmPicturebox = BrmPicturebox:new(name, path, location, visible)
     local awtxPicturebox = _getAwtxPicturebox(numberOfPictureboxes + 1, path)
     if not awtxPicturebox then return end
     BrmPicturebox._awtxPicturebox = awtxPicturebox
     self._screen:addControl(awtxPicturebox)
     self.pictureboxes[name] = BrmPicturebox
-end
-
----Creates and adds a new button to the screen.
----Uses a pooled button control from a fixed pool (max 14). Fails silently if name is duplicate or pool exhausted.
----
----Access the button later via: `screenInstance.buttons["buttonName"]` or screenInstance.buttons.buttonName
----
----@param name string             -- Unique identifier for the button
----@param text? string            -- Optional button text
----@param location? Vector2D      -- Optional location (default: {x = 0, y = 0})
----@param size? Size              -- Optional size (default: {width = 0, height = 0})
----@param alignment? AlignmentID  -- Optional alignment (default: 0)
----@param fontNumber? FontID      -- Optional font number (default: 0)
----@param visible? boolean        -- Optional visibility (default: false)
-function Screen:newButton(name, text, location, size, alignment, fontNumber, visible)
-    local numberOfButtons = table.count(self.buttons)
-    if numberOfButtons >= maxButtons then
-        print("MAX BUTTONS")
-        return
-    end
-    if type(name) ~= 'string' then return end
-    if self.buttons[name] ~= nil then
-        print("button already exist")
-        return
-    end
-    local params = prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
-    local button = BrmComponent:_new(
-        params.name,
-        params.text,
-        params.location,
-        params.size,
-        params.alignment,
-        params.fontNumber,
-        params.visible
-    )
-
-    local awtxButton = _getAwtxButtons(numberOfButtons + 1)
-    if not awtxButton then return end
-    button._awtxComponent = awtxButton
-    self.buttons[name] = button
-end
-
-function Screen:newTextbox(name, text, location, size, alignment, fontNumber, visible)
-    local numberOfTextbox = table.count(self.textboxes)
-    if numberOfTextbox >= maxTextboxes then print("Max Textboxes") return end
-    if type(name) ~= 'string' then
-        print("Name should be a string")
-        return
-    end
-    if self.textboxes[name] then
-        print("Textbox already exist")
-        return
-    end
-    local params = prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
-    local textbox = BrmComponent:_new(
-        params.name,
-        params.text,
-        params.location,
-        params.size,
-        params.alignment,
-        params.fontNumber,
-        params.visible
-    )
-    local awtxTextbox = _getAwtxTextbox(numberOfTextbox+1)
-    if not awtxTextbox then return end
-    textbox._awtxComponent = awtxTextbox
 end
 
 function Screen:newScale()
@@ -424,11 +326,10 @@ function Screen:_initScreen()
     for _, brmPicturebox in pairs(self.pictureboxes) do
         brmPicturebox:_init()
     end
-    for _,textbox in pairs(self.textboxes) do
+    for _, textbox in pairs(self.textboxes) do
         textbox:_init()
     end
 end
-
 
 ---Displays the screen and initializes all components.
 ---Should be called after adding labels/buttons.
@@ -436,6 +337,7 @@ function Screen:show()
     self:_initScreen()
     self._screen:show()
 end
+
 ----------------------------------Components---------------------------------
 
 

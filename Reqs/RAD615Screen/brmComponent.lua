@@ -6,83 +6,109 @@
 ---@field alignment AlignmentID
 ---@field fontNumber FontID
 ---@field visible boolean
----@field private _awtxComponent awtx.labelCtrl|awtx.buttonCtrl
+---@field private _awtxComponent awtx.labelCtrl|awtx.buttonCtrl|awtx.textboxCtrl
 local BrmComponent = {}
 BrmComponent.__index = BrmComponent
+
+---Prepares and returns a complete set of component parameters with default values.
+---This helper function ensures all component fields are safely initialized, even if not provided.
+---
+---Useful for avoiding repeated default handling logic in component constructors.
+---
+---@param name string               -- Name of the component (must be unique per screen)
+---@param text? string              -- Optional display text (default: "")
+---@param location? Vector2D        -- Optional screen position (default: { x = 0, y = 0 })
+---@param size? Size                -- Optional size of the component (default: { width = 0, height = 0 })
+---@param alignment? AlignmentID    -- Optional text alignment (default: 0)
+---@param fontNumber? FontID        -- Optional font number (default: 0)
+---@param visible? boolean          -- Optional visibility state (default: false)
+---@return table                    -- Table containing all initialized component parameters
+local function prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
+    return {
+        name = name,
+        text = text or "",
+        location = location or { x = 0, y = 0 },
+        size = size or { width = 0, height = 0 },
+        alignment = alignment or 0,
+        fontNumber = fontNumber or 0,
+        visible = visible or false
+    }
+end
 
 ---Creates a new component instance (label or button) with given properties.
 ---
 ---@param name string             -- Component name
----@param text string             -- Displayed text
----@param location Vector2D       -- Location on screen
----@param size Size               -- Size of the component
----@param alignment AlignmentID   -- Text alignment
----@param fontNumber FontID       -- Font number
----@param visible boolean         -- Whether the component is visible
----@return _ScreenRAD615.screen.component
+---@param text? string             -- Displayed text
+---@param location? Vector2D       -- Location on screen
+---@param size? Size               -- Size of the component
+---@param alignment? AlignmentID   -- Text alignment
+---@param fontNumber? FontID       -- Font number
+---@param visible? boolean         -- Whether the component is visible
+---@return _ScreenRAD615.screen.component 
 ---@private
 function BrmComponent:_new(name, text, location, size, alignment, fontNumber, visible)
     local instance = {}
     setmetatable(instance, self)
-    instance.name = name
-    instance.text = text
-    instance.location = location
-    instance.size = size
-    instance.alignment = alignment
-    instance.fontNumber = fontNumber
-    instance.visible = visible
+    local params = prepareComponentParams(name, text, location, size, alignment, fontNumber, visible)
+    instance.name = params.name
+    instance.text = params.text
+    instance.location = params.location
+    instance.size = params.size
+    instance.alignment = params.alignment
+    instance.fontNumber = params.fontNumber
+    instance.visible = params.visible
     return instance
 end
 
 function BrmComponent:_init()
-    self._awtxComponent:setText(self.text)
-    self._awtxComponent:setLocation(self.location.x, self.location.y)
-    self._awtxComponent:reSize(self.size.width, self.size.height)
-    self._awtxComponent:setAlignment(self.alignment)
-    self._awtxComponent:setFont(self.fontNumber)
-    self._awtxComponent:setVisible(self.visible)
+    self:setText()
+    self:setLocation()
+    self:reSize()
+    self:setAlignment()
+    self:setFont()
+    self:setVisible()
 end
 
 ---This function sets the size of the component, you need to redraw the screen
----@param newSize Size
-function BrmComponent:reSize(newSize)
-    self.size = newSize
-    if self._awtxComponent then self._awtxComponent:reSize(newSize.width, newSize.height) end
+---@param size? Size
+function BrmComponent:reSize(size)
+    self.size = size or self.size
+    if self._awtxComponent then self._awtxComponent:reSize(self.size.width, self.size.height) end
 end
 
 ---This function sets the alignment of the component, you need to redraw the screen
----@param alignment AlignmentID
+---@param alignment? AlignmentID
 function BrmComponent:setAlignment(alignment)
-    self.alignment = alignment
-    if self._awtxComponent then self._awtxComponent:setAlignment(alignment) end
+    self.alignment = alignment or self.alignment
+    if self._awtxComponent then self._awtxComponent:setAlignment(self.alignment) end
 end
 
 ---This function sets the font of the component, you need to redraw the screen
----@param fontNumber FontID
+---@param fontNumber? FontID
 function BrmComponent:setFont(fontNumber)
-    self.fontNumber = fontNumber
-    if self._awtxComponent then self._awtxComponent:setFont(fontNumber) end
+    self.fontNumber = fontNumber or self.fontNumber
+    if self._awtxComponent then self._awtxComponent:setFont(self.fontNumber) end
 end
 
 ---This function sets the location of the component, you need to redraw the screen
----@param location Vector2D
+---@param location? Vector2D
 function BrmComponent:setLocation(location)
-    self.location = location
-    if self._awtxComponent then self._awtxComponent:setLocation(location.x, location.y) end
+    self.location = location or self.location
+    if self._awtxComponent then self._awtxComponent:setLocation(self.location.x, self.location.y) end
 end
 
 ---This function sets the text of component, you need to redraw the screen
----@param text string
+---@param text? string
 function BrmComponent:setText(text)
-    self.text = text
-    if self._awtxComponent then self._awtxComponent:setText(text) end
+    self.text = text or self.text
+    if self._awtxComponent then self._awtxComponent:setText(self.text) end
 end
 
 ---This function sets the visibility of the component, you need to redraw the screen
----@param visible boolean
+---@param visible? boolean
 function BrmComponent:setVisible(visible)
-    self.visible = visible
-    if self._awtxComponent then self._awtxComponent:setVisible(visible) end
+    if type(visible) =="boolean" then self.visible = visible end
+    if self._awtxComponent then self._awtxComponent:setVisible(self.visible) end
 end
 
 return BrmComponent
