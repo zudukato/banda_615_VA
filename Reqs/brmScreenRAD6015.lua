@@ -36,6 +36,7 @@ local brmUtilities = require("Reqs.brmUtilities")
 local awtxConstants = require("Reqs.awtxReqConstants")
 local BrmPicturebox = require("Reqs.RAD615Screen.brmPictureBox")
 local BrmComponent = require("Reqs.RAD615Screen.brmComponent")
+local BrmScreenScale = require "Reqs.RAD615Screen.brmScreenScale"
 local maxLabels = 69
 local maxButtons = 14
 local maxPictureboxes = 11
@@ -57,7 +58,8 @@ _ScreenRAD615 = {
     _labels = {},
     _buttons = {},
     _pictureboxes = {},
-    _textboxes = {}
+    _textboxes = {},
+    _scales = {}
 }
 
 ---@class Vector2D
@@ -74,6 +76,7 @@ _ScreenRAD615 = {
 ---@field buttons table<string,_ScreenRAD615.screen.component>
 ---@field pictureboxes table<string, _ScreenRAD615.screen.picturebox>
 ---@field textboxes table<string,_ScreenRAD615.screen.component>
+---@field scales table<string,_ScreenRAD615.screen.scale>
 ---@field private _screen awtx.screenCtrl
 local Screen = {
 }
@@ -158,30 +161,26 @@ end
 ---Creates a new screen instance with a unique name.
 ---
 ---@param name string                          -- Unique name for the screen
----@param labels? table<_ScreenRAD615.screen.component> -- Optional label components to preload
----@param buttons? _ScreenRAD615.screen.component[]     -- Optional button components to preload
----@param scaleControlNumber? number          -- Optional scale control parameter (reserved)
 ---@return _ScreenRAD615.screen?              -- Returns the screen instance or nil if name already exists
-_ScreenRAD615.newScreen = function(name, labels, buttons, scaleControlNumber)
+_ScreenRAD615.newScreen = function(name)
     if _ScreenRAD615.screens[name] then return end
-    local screenInstance = Screen:new(name, labels, buttons, scaleControlNumber)
+    local screenInstance = Screen:new(name)
     _ScreenRAD615.screens[name] = screenInstance
     return _ScreenRAD615.screens[name]
 end
 
 ---Internal screen constructor. Called by `newScreen`.
 ---@param name string                          -- Unique name for the screen
----@param labels? table<_ScreenRAD615.screen.component> -- Optional label components to preload
----@param buttons? _ScreenRAD615.screen.component[]     -- Optional button components to preload
----@param scaleControlNumber? number          -- Optional scale control parameter (reserved)
 ---@return _ScreenRAD615.screen?              -- Returns the screen instance or nil if name already exists
-function Screen:new(name, labels, buttons, scaleControlNumber)
+---@private
+function Screen:new(name)
     local instance = {}
     setmetatable(instance, self)
     instance.labels = {}
     instance.buttons = {}
     instance.textboxes = {}
     instance.pictureboxes = {}
+    instance.scales = {}
     if _ScreenRAD615.screens[name] ~= nil then
         print("screen already exist")
         return
@@ -190,6 +189,7 @@ function Screen:new(name, labels, buttons, scaleControlNumber)
     instance._screen = awtx.graphics.screens.new(name)
     return instance
 end
+
 ---@alias ComponentMap
 ---| "label"
 ---| "button"
@@ -210,7 +210,9 @@ local componentMap = {
 ---@param alignment? AlignmentID  -- Optional alignment (default: 0)
 ---@param fontNumber? FontID      -- Optional font number (default: 0)
 ---@param visible? boolean        -- Optional visibility (default: false)
-function Screen:_newComponent(componentType, name, text, location, size, alignment, fontNumber, visible)
+---@param inverted? boolean        -- Optional visibility (default: false)
+---@private
+function Screen:_newComponent(componentType, name, text, location, size, alignment, fontNumber, visible, inverted)
     local def = componentMap[componentType]
     if not def then
         print("Unknown component type: " .. tostring(componentType))
@@ -225,10 +227,10 @@ function Screen:_newComponent(componentType, name, text, location, size, alignme
         print("component already exist")
         return
     end
-    local component = BrmComponent:_new(name, text, location, size, alignment, fontNumber, visible)
+    local component = BrmComponent:_new(name, text, location, size, alignment, fontNumber, visible, inverted)
     local awtxComponent = def.creator(table.count(pool) + 1)
     if not awtxComponent then return end
-    component._awtxComponent = awtxComponent
+    component:setAwtxComponent(awtxComponent)
     self._screen:addControl(component._awtxComponent)
     pool[name] = component
 end
@@ -245,8 +247,9 @@ end
 ---@param alignment? AlignmentID  -- Optional alignment (default: 0)
 ---@param fontNumber? FontID      -- Optional font number (default: 0)
 ---@param visible? boolean        -- Optional visibility (default: false)
-function Screen:newLabel(name, text, location, size, alignment, fontNumber, visible)
-    self:_newComponent("label", name, text, location, size, alignment, fontNumber, visible)
+---@param inverted? boolean        -- Optional (default: false)
+function Screen:newLabel(name, text, location, size, alignment, fontNumber, visible, inverted)
+    self:_newComponent("label", name, text, location, size, alignment, fontNumber, visible, inverted)
 end
 
 ---Creates and adds a new button to the screen.
@@ -261,8 +264,9 @@ end
 ---@param alignment? AlignmentID  -- Optional alignment (default: 0)
 ---@param fontNumber? FontID      -- Optional font number (default: 0)
 ---@param visible? boolean        -- Optional visibility (default: false)
-function Screen:newButton(name, text, location, size, alignment, fontNumber, visible)
-    self:_newComponent("button", name, text, location, size, alignment, fontNumber, visible)
+---@param inverted? boolean        -- Optional visibility (default: false)
+function Screen:newButton(name, text, location, size, alignment, fontNumber, visible, inverted)
+    self:_newComponent("button", name, text, location, size, alignment, fontNumber, visible, inverted)
 end
 
 function Screen:newTextbox(name, text, location, size, alignment, fontNumber, visible)
@@ -303,15 +307,51 @@ function Screen:newPicturebox(name, path, location, visible)
         return
     end
     local numberOfPictureboxes = table.count(self.pictureboxes)
-    local BrmPicturebox = BrmPicturebox:new(name, path, location, visible)
+    local brmPicturebox = BrmPicturebox:new(name, path, location, visible)
     local awtxPicturebox = _getAwtxPicturebox(numberOfPictureboxes + 1, path)
     if not awtxPicturebox then return end
-    BrmPicturebox._awtxPicturebox = awtxPicturebox
+    brmPicturebox:setAwtxPicturebox(awtxPicturebox)
     self._screen:addControl(awtxPicturebox)
-    self.pictureboxes[name] = BrmPicturebox
+    self.pictureboxes[name] = brmPicturebox
 end
 
-function Screen:newScale()
+---Creates and adds a new scale control to the screen.
+---
+---This function initializes a reusable scale component (`BrmScreenScale`) and binds it to a pooled
+---AWTX scale control. It then adds the AWTX control to the internal screen instance for display.
+---Each scale is uniquely identified by its `name` and stored in `screen.scales[name]`.
+---
+---### Notes:
+---- Only a limited number of pooled scales are available (typically max 10).
+---- If the name already exists or the pool is exhausted, the function fails silently.
+---
+---### Example:
+---```lua
+---screen:newScale("mainScale", 0, 1, {x = 0, y = 20}, true, -1)
+---```
+---
+---@param name string                     Unique identifier for the scale
+---@param scaleNumber? integer            Scale number (0 = active; 1-4 = specific scale index)
+---@param scaleStyle? ScaleStyle          Visual style of the scale (1 = large, 2 = medium, etc.)
+---@param location? Vector2D              Optional screen location `{x, y}`; default is `{0,0}`
+---@param visible? boolean                Whether the scale should be initially visible
+---@param activeValue? ActiveValueScale   Optional active value (e.g. Net/Gross); default is `-1`
+function Screen:newScale(name, scaleNumber, scaleStyle, location, visible,activeValue)
+    if type(name) ~= "string" then
+        print("Name should be a string")
+        return
+    end
+    if self.scales[name] then
+        print("Scale already exist")
+        return
+    end
+    local numberOfScales = table.count(self.scales)
+    local brmScreenScale = BrmScreenScale:new(name,scaleNumber,scaleStyle,location,visible,activeValue)
+    local awtxScreenScale = _getAwtxScales(numberOfScales+1,brmScreenScale.scaleNumber, brmScreenScale.scaleStyle)
+    if not awtxScreenScale then return end
+    brmScreenScale:setAwtxScale(awtxScreenScale)
+    self._screen:addControl(awtxScreenScale)
+    self.scales[name] = brmScreenScale
 end
 
 ---Initializes and applies properties to all label and button components of the screen.
@@ -329,6 +369,10 @@ function Screen:_initScreen()
     for _, textbox in pairs(self.textboxes) do
         textbox:_init()
     end
+
+    for _, brmScales in pairs(self.scales) do
+        brmScales:_init()
+    end
 end
 
 ---Displays the screen and initializes all components.
@@ -337,8 +381,5 @@ function Screen:show()
     self:_initScreen()
     self._screen:show()
 end
-
-----------------------------------Components---------------------------------
-
 
 return _ScreenRAD615

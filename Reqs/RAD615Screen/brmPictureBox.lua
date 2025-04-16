@@ -11,6 +11,12 @@ local numericFirmwareVersion = brmUtilities.getNumericFirmwareVersion()
 local BrmPicturebox = {}
 BrmPicturebox.__index = BrmPicturebox
 
+---comment
+---@param name string
+---@param path string
+---@param location? Vector2D
+---@param visible? boolean
+---@return _ScreenRAD615.screen.picturebox
 function BrmPicturebox:new(name, path, location, visible)
     local instance = {}
     setmetatable(instance, self)
@@ -36,6 +42,12 @@ function BrmPicturebox:setBitmap(path)
     self.path = path or self.path
     if not self._awtxPicturebox then return end
     self._awtxPicturebox:setBitmap(self.path)
+end
+
+---@param awtxPicturebox awtx.pictureboxCtrl
+---@private
+function BrmPicturebox:setAwtxPicturebox(awtxPicturebox)
+    self._awtxPicturebox = awtxPicturebox
 end
 
 function BrmPicturebox:_init()
