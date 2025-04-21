@@ -63,6 +63,10 @@ local decimalHoldFlag         = 0
 local zeroHoldFlag            = 0
 
 
+brmScaleKeys.evensNames = {
+  "onStartKeyDown"
+}
+
 ---Function to wait to press a key
 ---caution! it function block all the keys except setup, but another function event how change the screen can be activated
 ---@param key string --key to press
@@ -80,56 +84,136 @@ function brmScaleKeys.waitKey(key, waitMotion)
   return flag
 end
 
+---comment
+---@param keyEvent brmScaleKeys.evensNames
+---@param ... unknown
+---@return nil
 function brmScaleKeys.keyHandle(keyEvent, ...)
-  if type(CurrentMode.keypad)=="nil" then return end
----@diagnostic disable-next-line: redundant-parameter
+  if type(CurrentMode.keypad) == "nil" then return end
+  ---@diagnostic disable-next-line: redundant-parameter
   if CurrentMode.keypad[keyEvent] then return CurrentMode.keypad[keyEvent](arg) end
 end
 
-function brmScaleKeys.rpnHandle(keyEvent,number, ...)
-  if type(CurrentMode.rpn)=="nil" then return end
-  if CurrentMode.rpn[keyEvent] then return 
-    CurrentMode.rpn[keyEvent](number) end
+function brmScaleKeys.rpnHandle(keyEvent, number, ...)
+  if type(CurrentMode.rpn) == "nil" then return end
+  if CurrentMode.rpn[keyEvent] then
+    return
+        CurrentMode.rpn[keyEvent](number)
+  end
 end
 
+function brmScaleKeys.usbKeyHandle(keycode, ...)
+  ---@class brmScaleKeys.usbKeyHandle.call
+  ---@field func brmScaleKeys.evensNames
+  ---@field args any
+
+  ---@type table<integer,brmScaleKeys.usbKeyHandle.call>
+  local calls = {
+    [4109] = { func = "onEscapeKeyUp" },
+    [4110] = { func = "onClearKeyUp" },
+  }
+
+  local call = calls[keycode]
+  if call then return brmScaleKeys.keyHandle(call.func, call.args) end
+  local status, char = pcall(string.char, keycode)
+  if status then
+    return brmScaleKeys.keyHandle("onQwertyKeyUp", char)
+  end
+  print(keycode, arg)
+end
+
+---@enum(key) brmScaleKeys.evensNames
 brmScaleKeys.defaultKeypad = {
+  onTareKeyDown = nil,
+  onTareKeyUp = nil,
   onTareKeyHold = function()
     awtx.weight.requestTareClear()
     brmUtilities.doScroll(Language.done)
   end,
-  onSelectKeyUp = function()
-    awtx.weight.cycleActiveValue()
-  end,
-  onPrintKeyDown = function()
-    awtx.weight.requestPrint()
-  end,
-  onZeroKeyDown = function()
-    awtx.weight.requestZero()
-  end,
   onSelectKeyDown = function()
     awtx.weight.cycleActiveScale()
   end,
-
+  onSelectKeyUp = function()
+    awtx.weight.cycleActiveValue()
+  end,
+  onSelectKeyHold = nil,
+  onPrintKeyDown = function()
+    awtx.weight.requestPrint()
+  end,
+  onPrintKeyUp = nil,
+  onPrintKeyHold = nil,
+  onUnitsKeyDown = nil,
+  onUnitsKeyUp = nil,
+  onUnitsKeyHold = nil,
+  onZeroKeyDown = function()
+    awtx.weight.requestZero()
+  end,
+  onZeroKeyUp = nil,
+  onZeroKeyHold = nil,
+  onSampleKeyDown = nil,
+  onSampleKeyUp = nil,
+  onSampleKeyHold = nil,
+  onStartKeyDown = nil,
+  onStartKeyUp = nil,
+  onStartKeyHold = nil,
+  onStopKeyDown = nil,
+  onStopKeyUp = nil,
+  onStopKeyHold = nil,
+  onF1KeyDown = nil,
+  onF1KeyUp = nil,
+  onF1KeyHold = nil,
+  onF2KeyDown = nil,
+  onF2KeyUp = nil,
+  onF2KeyHold = nil,
+  onF3KeyDown = nil,
+  onF3KeyUp = nil,
+  onF3KeyHold = nil,
+  onF4KeyDown = nil,
+  onF4KeyUp = nil,
+  onF4KeyHold = nil,
+  onF5KeyDown = nil,
+  onF5KeyUp = nil,
+  onF5KeyHold = nil,
+  onScaleSelectKeyUp = nil,
+  onScaleSelectKeyDown = nil,
+  onScaleSelectKeyHold = nil,
+  onSetupKeyDown = nil,
+  onSetupKeyUp = nil,
+  onSetupKeyHold = nil,
+  onTargetKeyDown = nil,
+  onTargetKeyUp = nil,
+  onTargetKeyHold = nil,
+  onNumericKeyDown = nil,
+  onNumericKeyUp = nil,
+  onNumericKeyHold = nil,
+  onClearKeyUp = nil,
+  onClearKeyDown = nil,
+  onClearKeyHold = nil,
+  onDecimalKeyDown = nil,
+  onDecimalKeyUp = nil,
+  onDecimalKeyHold = nil,
+  onQwertyKeyUp = nil,
+  onIdKeyDown = nil,
+  onIdKeyUp = nil,
+  onIdKeyHold = nil,
+  onEscapeKeyUp = nil,
 }
 brmScaleKeys.defaultRpn = {
-  TARE = function (number)
+  TARE = function(number)
     local newTare = tonumber(number)
     awtx.weight.requestKeyboardTare(newTare)
   end,
-  ZERO = function (number)
+  ZERO = function(number)
     local newZero = tonumber(number)
     awtx.weight.requestKeyboardZero(newZero)
   end
 }
 
+
 function brmScaleKeys.onStart()
-    -- awtx.keypad.setRpnMode(1) -- 1 for enable
-    awtx.keypad.registerRpnEvent(brmScaleKeys.rpnHandle) -- 1 for enable
-    awtx.keypad.registerUsbKeyboardEvent(function (keycode)
-      local status, char = pcall(string.char, keycode)
-      if not status then return end
-      return brmScaleKeys.keyHandle("onKeyQwertyUp",char)
-    end)
+  -- awtx.keypad.setRpnMode(1) -- 1 for enable
+  awtx.keypad.registerRpnEvent(brmScaleKeys.rpnHandle) -- 1 for enable
+  awtx.keypad.registerUsbKeyboardEvent(brmScaleKeys.usbKeyHandle)
   -------------------------------------Definition of keys---------------------------------------
   ---------------------------------- Tare Key Default Functions ----------------------------------
   ------------------------------------------------------------------------------------------------
@@ -328,7 +412,6 @@ function brmScaleKeys.onStart()
     f1HoldFlag = 0
   end
 
-
   function awtx.keypad.KEY_F2_DOWN()
     f2HoldFlag = 0
     return brmScaleKeys.keyHandle("onF2KeyDown")
@@ -482,7 +565,7 @@ function brmScaleKeys.onStart()
   function awtx.keypad.KEY_NUMERIC_REPEAT(numChar)
     numericHoldFlag = numericHoldFlag + 1
     if numericHoldFlag == HowManyRepeatsMakeAHold then
-      return brmScaleKeys.keyHandle("onNumericKeyRepeat", numChar)
+      return brmScaleKeys.keyHandle("onNumericKeyHold", numChar)
     end
   end
 
@@ -539,17 +622,12 @@ function brmScaleKeys.onStart()
 end
 
 function awtx.keypad.KEY_QWERTY_UP(releasedChar)
-  return brmScaleKeys.keyHandle("onKeyQwertyUp",releasedChar)
-end
-
-function awtx.keypad.KEY_SPACE_UP()
-  return brmScaleKeys.keyHandle("onKeySpaceUp")
+  return brmScaleKeys.keyHandle("onQwertyKeyUp", releasedChar)
 end
 
 function awtx.keypad.KEY_ID_UP()
-  return brmScaleKeys.keyHandle("onKeyIdUp")
+  return brmScaleKeys.keyHandle("onIdKeyUp")
 end
-
 
 brmScaleKeys.onStart()
 return brmScaleKeys
