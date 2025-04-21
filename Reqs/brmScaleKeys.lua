@@ -50,6 +50,10 @@ local sampleHoldFlag          = 0
 local startHoldFlag           = 0
 local stopHoldFlag            = 0
 local f1HoldFlag              = 0
+local f2HoldFlag              = 0
+local f3HoldFlag              = 0
+local f4HoldFlag              = 0
+local f5HoldFlag              = 0
 local scaleSelectHoldFlag     = 0
 local setupHoldFlag           = 0
 local targetHoldFlag          = 0
@@ -119,8 +123,13 @@ brmScaleKeys.defaultRpn = {
 }
 
 function brmScaleKeys.onStart()
-    awtx.keypad.setRpnMode(1) -- 1 for enable
+    -- awtx.keypad.setRpnMode(1) -- 1 for enable
     awtx.keypad.registerRpnEvent(brmScaleKeys.rpnHandle) -- 1 for enable
+    awtx.keypad.registerUsbKeyboardEvent(function (keycode)
+      local status, char = pcall(string.char, keycode)
+      if not status then return end
+      return brmScaleKeys.keyHandle("onKeyQwertyUp",char)
+    end)
   -------------------------------------Definition of keys---------------------------------------
   ---------------------------------- Tare Key Default Functions ----------------------------------
   ------------------------------------------------------------------------------------------------
@@ -319,6 +328,83 @@ function brmScaleKeys.onStart()
     f1HoldFlag = 0
   end
 
+
+  function awtx.keypad.KEY_F2_DOWN()
+    f2HoldFlag = 0
+    return brmScaleKeys.keyHandle("onF2KeyDown")
+  end
+
+  function awtx.keypad.KEY_F2_REPEAT()
+    f2HoldFlag = f2HoldFlag + 1
+    if f2HoldFlag == HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF2KeyHold")
+    end
+  end
+
+  function awtx.keypad.KEY_F2_UP()
+    if f2HoldFlag < HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF2KeyUp")
+    end
+    f2HoldFlag = 0
+  end
+
+  function awtx.keypad.KEY_F3_DOWN()
+    f3HoldFlag = 0
+    return brmScaleKeys.keyHandle("onF3KeyDown")
+  end
+
+  function awtx.keypad.KEY_F3_REPEAT()
+    f3HoldFlag = f3HoldFlag + 1
+    if f3HoldFlag == HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF3KeyHold")
+    end
+  end
+
+  function awtx.keypad.KEY_F3_UP()
+    if f3HoldFlag < HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF3KeyUp")
+    end
+    f3HoldFlag = 0
+  end
+
+  function awtx.keypad.KEY_F4_DOWN()
+    f4HoldFlag = 0
+    return brmScaleKeys.keyHandle("onF4KeyDown")
+  end
+
+  function awtx.keypad.KEY_F4_REPEAT()
+    f4HoldFlag = f4HoldFlag + 1
+    if f4HoldFlag == HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF4KeyHold")
+    end
+  end
+
+  function awtx.keypad.KEY_F4_UP()
+    if f4HoldFlag < HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF4KeyUp")
+    end
+    f4HoldFlag = 0
+  end
+
+  function awtx.keypad.KEY_F5_DOWN()
+    f5HoldFlag = 0
+    return brmScaleKeys.keyHandle("onF5KeyDown")
+  end
+
+  function awtx.keypad.KEY_F5_REPEAT()
+    f5HoldFlag = f5HoldFlag + 1
+    if f5HoldFlag == HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF5KeyHold")
+    end
+  end
+
+  function awtx.keypad.KEY_F5_UP()
+    if f5HoldFlag < HowManyRepeatsMakeAHold then
+      return brmScaleKeys.keyHandle("onF5KeyUp")
+    end
+    f5HoldFlag = 0
+  end
+
   -----------------------------------------------------------------------------------------------
   -- Scale Select Key Event Handlers
   -----------------------------------------------------------------------------------------------
@@ -451,6 +537,19 @@ function brmScaleKeys.onStart()
     decimalHoldFlag = 0
   end
 end
+
+function awtx.keypad.KEY_QWERTY_UP(releasedChar)
+  return brmScaleKeys.keyHandle("onKeyQwertyUp",releasedChar)
+end
+
+function awtx.keypad.KEY_SPACE_UP()
+  return brmScaleKeys.keyHandle("onKeySpaceUp")
+end
+
+function awtx.keypad.KEY_ID_UP()
+  return brmScaleKeys.keyHandle("onKeyIdUp")
+end
+
 
 brmScaleKeys.onStart()
 return brmScaleKeys
