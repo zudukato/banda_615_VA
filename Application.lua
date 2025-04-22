@@ -55,7 +55,7 @@ EventsHandle = EventsHandle or {
     }
 }
 
-Databases = require("databases")
+Databases = {}
 MenusTree = require("menus")
 -------Application Events---------
 
