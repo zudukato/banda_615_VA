@@ -50,6 +50,10 @@ local sampleHoldFlag          = 0
 local startHoldFlag           = 0
 local stopHoldFlag            = 0
 local f1HoldFlag              = 0
+local f2HoldFlag              = 0
+local f3HoldFlag              = 0
+local f4HoldFlag              = 0
+local f5HoldFlag              = 0
 local scaleSelectHoldFlag     = 0
 local setupHoldFlag           = 0
 local targetHoldFlag          = 0
@@ -87,7 +91,7 @@ end
 function brmScaleKeys.keyHandle(keyEvent, ...)
   if type(CurrentMode.keypad) == "nil" then return end
   ---@diagnostic disable-next-line: redundant-parameter
-  if CurrentMode.keypad[keyEvent] then return CurrentMode.keypad[keyEvent](arg) end
+  if CurrentMode.keypad[keyEvent] then return CurrentMode.keypad[keyEvent](...) end
 end
 
 function brmScaleKeys.rpnHandle(keyEvent, number, ...)
@@ -117,6 +121,70 @@ function brmScaleKeys.usbKeyHandle(keycode, ...)
   end
   print(keycode, arg)
 end
+
+---@class brmScaleKeys.KeypadEvents
+---@field onTareKeyDown? fun(...)
+---@field onTareKeyUp? fun(...)
+---@field onTareKeyHold? fun(...)
+---@field onSelectKeyDown? fun(...)
+---@field onSelectKeyUp? fun(...)
+---@field onSelectKeyHold? fun(...)
+---@field onPrintKeyDown? fun(...)
+---@field onPrintKeyUp? fun(...)
+---@field onPrintKeyHold? fun(...)
+---@field onUnitsKeyDown? fun(...)
+---@field onUnitsKeyUp? fun(...)
+---@field onUnitsKeyHold? fun(...)
+---@field onZeroKeyDown? fun(...)
+---@field onZeroKeyUp? fun(...)
+---@field onZeroKeyHold? fun(...)
+---@field onSampleKeyDown? fun(...)
+---@field onSampleKeyUp? fun(...)
+---@field onSampleKeyHold? fun(...)
+---@field onStartKeyDown? fun(...)
+---@field onStartKeyUp? fun(...)
+---@field onStartKeyHold? fun(...)
+---@field onStopKeyDown? fun(...)
+---@field onStopKeyUp? fun(...)
+---@field onStopKeyHold? fun(...)
+---@field onF1KeyDown? fun(...)
+---@field onF1KeyUp? fun(...)
+---@field onF1KeyHold? fun(...)
+---@field onF2KeyDown? fun(...)
+---@field onF2KeyUp? fun(...)
+---@field onF2KeyHold? fun(...)
+---@field onF3KeyDown? fun(...)
+---@field onF3KeyUp? fun(...)
+---@field onF3KeyHold? fun(...)
+---@field onF4KeyDown? fun(...)
+---@field onF4KeyUp? fun(...)
+---@field onF4KeyHold? fun(...)
+---@field onF5KeyDown? fun(...)
+---@field onF5KeyUp? fun(...)
+---@field onF5KeyHold? fun(...)
+---@field onScaleSelectKeyDown? fun(...)
+---@field onScaleSelectKeyUp? fun(...)
+---@field onScaleSelectKeyHold? fun(...)
+---@field onSetupKeyDown? fun(...)
+---@field onSetupKeyUp? fun(...)
+---@field onSetupKeyHold? fun(...)
+---@field onTargetKeyDown? fun(...)
+---@field onTargetKeyUp? fun(...)
+---@field onTargetKeyHold? fun(...)
+---@field onNumericKeyDown? fun(...)
+---@field onNumericKeyUp? fun(...)
+---@field onNumericKeyHold? fun(...)
+---@field onClearKeyDown? fun(...)
+---@field onClearKeyUp? fun(...)
+---@field onClearKeyHold? fun(...)
+---@field onDecimalKeyDown? fun(...)
+---@field onDecimalKeyUp? fun(...)
+---@field onDecimalKeyHold? fun(...)
+---@field onQwertyKeyUp? fun(...)
+---@field onIdKeyDown? fun(...)
+---@field onIdKeyUp? fun(...)
+---@field onIdKeyHold? fun(...)
+---@field onEscapeKeyUp? fun(...)
 
 ---@enum(key) brmScaleKeys.evensNames
 brmScaleKeys.defaultKeypad = {
