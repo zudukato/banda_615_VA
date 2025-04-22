@@ -2,6 +2,7 @@ local brmUtilities = require("Reqs.brmUtilities")
 local awtxConstants = require("Reqs.awtxReqConstants")
 local screen405 = require("Reqs.brmScreenRAD405Class")
 local brmScaleKeys = require("Reqs.brmScaleKeys")
+require("normalWeight.databases")
 ---@type language
 
 local normalMode = {}
