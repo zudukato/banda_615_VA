@@ -6,14 +6,13 @@ local BrmReqSql = require("Reqs.brmSqlClasses")
 
 
 -- Databases
-local databases = {}
-databases.pesadas = BrmReqSql:new("pesadas")
-databases.catalogos = BrmReqSql:new("catalogos")
+Databases.pesadas = BrmReqSql:new("pesadas")
+Databases.catalogos = BrmReqSql:new("catalogos")
 --tables
-databases.catalogos.taras = databases.catalogos:newTable("taras", {"Id VARCHAR NOT NULL", "Value INTEGER"})
-databases.catalogos.empresas = databases.catalogos:newTable("empresas", {"Id VARCHAR NOT NULL", "Value VARCHAR NOT NULL"})
-databases.catalogos.productos = databases.catalogos:newTable("productos", {"Id VARCHAR NOT NULL", "Value VARCHAR NOT NULL"})
-databases.pesadas.primeraPesada = databases.pesadas:newTable("primeraPesada", {"Folio INTEGER",
+Databases.catalogos.taras = Databases.catalogos:newTable("taras", {"Id VARCHAR NOT NULL", "Value INTEGER"})
+Databases.catalogos.empresas = Databases.catalogos:newTable("empresas", {"Id VARCHAR NOT NULL", "Value VARCHAR NOT NULL"})
+Databases.catalogos.productos = Databases.catalogos:newTable("productos", {"Id VARCHAR NOT NULL", "Value VARCHAR NOT NULL"})
+Databases.pesadas.primeraPesada = Databases.pesadas:newTable("primeraPesada", {"Folio INTEGER",
     "Placas VARCHAR NOT NULL",
     "Chofer VARCHAR",
     "PesoIn INTEGER NOT NULL",
@@ -25,7 +24,7 @@ databases.pesadas.primeraPesada = databases.pesadas:newTable("primeraPesada", {"
     "IdProducto VARCHAR",
     "Producto VARCHAR"})
 
-databases.pesadas.segundaPesada = databases.pesadas:newTable("segundaPesada", {"Folio INTEGER",
+Databases.pesadas.segundaPesada = Databases.pesadas:newTable("segundaPesada", {"Folio INTEGER",
     "Placas VARCHAR NOT NULL",
     "Chofer VARCHAR",
     "PesoIn INTEGER NOT NULL",
@@ -44,7 +43,7 @@ databases.pesadas.segundaPesada = databases.pesadas:newTable("segundaPesada", {"
     "IdProducto VARCHAR",
     "Producto VARCHAR"})
 
-databases.pesadas.primeraPesadaFulles = databases.pesadas:newTable("primeraPesadaFulles", {"Folio INTEGER",
+Databases.pesadas.primeraPesadaFulles = Databases.pesadas:newTable("primeraPesadaFulles", {"Folio INTEGER",
     "Placas1 VARCHAR NOT NULL",
     "Placas2 VARCHAR NOT NULL",
     "PesoIn1 INTEGER NOT NULL",
@@ -57,7 +56,7 @@ databases.pesadas.primeraPesadaFulles = databases.pesadas:newTable("primeraPesad
     "IdProducto VARCHAR",
     "Producto VARCHAR"})
 
-databases.pesadas.segundaPesadaFulles = databases.pesadas:newTable("segundaPesadaFulles", {"Folio INTEGER",
+Databases.pesadas.segundaPesadaFulles = Databases.pesadas:newTable("segundaPesadaFulles", {"Folio INTEGER",
     "Placas1 VARCHAR NOT NULL",
     "Placas2 VARCHAR NOT NULL",
     "Chofer VARCHAR",
@@ -78,5 +77,3 @@ databases.pesadas.segundaPesadaFulles = databases.pesadas:newTable("segundaPesad
     "Empresa VARCHAR",
     "IdProducto VARCHAR",
     "Producto VARCHAR"})
-
-return databases

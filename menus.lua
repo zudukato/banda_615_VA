@@ -33,50 +33,6 @@ function f.changeUserPassword()
     PersistentVars.userPassword = tostring(newPassword)
 end
 
----function to add a element ito a database 'catalogos'
----@return nil
-function f.databaseAdd()
-    local value, id, isEnterKey
-    local databaseTable = f._selectTable()
-    if not databaseTable then return end
-    id, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterId,
-        Language.enter, Language.id)
-    if not isEnterKey then return end
-    if #databaseTable:find("id", id) >= 1 then return brmUtilities.doScroll(Language._phrases.alreadyExist, 100) end
-    value, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterValue, Language.enter, Language.name)
-    databaseTable:addRow({ id, value })
-    brmUtilities.doScroll(Language.ok, 500)
-end
-
----function to delete a element ito a database 'catalogos'
-function f.databaseDelete()
-    local value, id, isEnterKey
-    local databaseTable = f._selectTable()
-    if not databaseTable then return end
-    id, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterId,
-        Language.enter, Language.id)
-    if not isEnterKey then return end
-    if #databaseTable:find("id", id) == 0 then return brmUtilities.doScroll(Language._phrases.doNotExist, 100) end
-    local _, result = databaseTable:deleteRow("id", id)
-    if not result or result.valuesExec ~= 0 then return brmUtilities.doScroll(Language.error, 1000) end
-    brmUtilities.doScroll(Language.ok, 500)
-end
-
----function to delete a element ito a database 'catalogos'
-function f.databaseEdit()
-    local value, id, isEnterKey
-    local databaseTable = f._selectTable()
-    if not databaseTable then return end
-    id, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterId,
-        Language.enter, Language.id)
-    if not isEnterKey then return end
-    if #databaseTable:find("id", id) == 0 then return brmUtilities.doScroll(Language._phrases.doNotExist, 100) end
-    value, isEnterKey = awtx.keypad.enterString("", 10, -1, Language._phrases.enterValue, Language.enter, Language.name)
-    local _, result = databaseTable:updateRow({ value = value }, "id", id)
-    if not result or result.valuesExec ~= 0 then return brmUtilities.doScroll(Language.error, 1000) end
-    brmUtilities.doScroll(Language.ok, 500)
-end
-
 --- To select a database table
 ---@return tableClass|nil
 function f._selectTable()
@@ -155,7 +111,6 @@ local menusTree =
     topMenu = {
         { text = Language.ticket,              action = "MENU", value = "ticketsMenu" },
         { text = Language.config,              action = "MENU", value = "config" },
-        { text = Language.catalogs,            action = "MENU", value = "catalogues" },
         { text = Language.language,            action = "FUNC", value = f.changeLanguage },
         { text = Language._phrases.chPassword, action = "FUNC", value = f.changeUserPassword },
         { text = Language.reset,               action = "MENU", value = "reset" },
@@ -167,11 +122,6 @@ local menusTree =
     headers = {
         { text = Language.header1, action = "FUNC", value = f.changeHeaders, params = { 1 } },
         { text = Language.header2, action = "FUNC", value = f.changeHeaders, params = { 2 } },
-    },
-    catalogues = {
-        { text = Language.add,    action = "FUNC", value = f.databaseAdd },
-        { text = Language.delete, action = "FUNC", value = f.databaseDelete },
-        { text = Language.edit,   action = "FUNC", value = f.databaseEdit },
     },
     config = {
         { text = Language._phrases.minWt, action = "FUNC", value = f.changeMinWt },
