@@ -217,9 +217,6 @@ function tableClass:_exec(query, ...)
   stmt, executionResult["queryExec"] = self._dbHandle:prepare(query)
   if not stmt then return {}, executionResult end
   if #{...}>0 then
-    for _, element in pairs({...}) do 
-      if type(element) == "table" then return {}, {values = "Not tables"} end
-    end
     executionResult['valuesExec'] = stmt:bind_values(...)
   end
   for row in stmt:nrows() do table.insert(response, row) end

@@ -356,22 +356,16 @@ end
 
 ---Initializes and applies properties to all label and button components of the screen.
 ---@private
-function Screen:_initScreen()
-    for _, label in pairs(self.labels) do
-        label:_init()
-    end
-    for _, button in pairs(self.buttons) do
-        button:_init()
-    end
-    for _, brmPicturebox in pairs(self.pictureboxes) do
-        brmPicturebox:_init()
-    end
-    for _, textbox in pairs(self.textboxes) do
-        textbox:_init()
-    end
-
-    for _, brmScales in pairs(self.scales) do
-        brmScales:_init()
+function Screen:_initScreen(visible)
+    local componentsList = {self.labels, self.buttons,self.pictureboxes, self.textboxes, self.scales}
+    for _,components in pairs(componentsList) do
+        for _,component in pairs(components) do
+            if visible then
+                pcall(component.setVisible, component)
+            else
+                component:_init()
+            end
+        end
     end
 end
 
@@ -380,6 +374,7 @@ end
 function Screen:show()
     self:_initScreen()
     self._screen:show()
+    self:_initScreen(true)
 end
 
 return _ScreenRAD615

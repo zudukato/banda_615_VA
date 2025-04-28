@@ -215,6 +215,17 @@ function brmUtilities.getNumericFirmwareVersion()
     return tonumber(numericVersion)
 end
 
+function table.csvToTable(path)
+    local file = io.open(path,"r")
+    local resultTable={}
+    if file then 
+        for line in file:lines() do
+            table.insert(resultTable, string.split(line, ","))
+        end
+    end
+    return resultTable
+end
+
 ---DO NOT USE IT, IT'S PROBABLY BROKEN
 -- ---function who return a table list of folders in a path
 -- ---@param path string --the path of files "c:\\something\\...\\"
