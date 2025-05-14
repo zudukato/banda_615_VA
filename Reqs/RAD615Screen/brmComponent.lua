@@ -26,6 +26,7 @@ BrmComponent.__index = BrmComponent
 ---@param inverted? boolean          -- Optional visibility state (default: false)
 ---@return table                    -- Table containing all initialized component parameters
 local function prepareComponentParams(name, text, location, size, alignment, fontNumber, visible, inverted)
+    if type(visible) ~= "boolean" then visible = true end
     return {
         name = name,
         text = text or "",
@@ -71,7 +72,6 @@ function BrmComponent:_init()
     self:reSize()
     self:setAlignment()
     self:setFont()
-    self:setVisible()
     self:setInverted()
 end
 

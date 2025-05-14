@@ -5,7 +5,24 @@ local brmScaleKeys = require("Reqs.brmScaleKeys")
 local brmScreen = require("Reqs.brmScreenRAD6015")
 local modeEpi = require("operationModes.EPI.epi")
 local database = require("operationModes.EPI.epiDatabase")
----@type language
+local epiMenu = require("EPI.menu")
+local brmVariables = require("Reqs.brmVariables")
+
+---@alias EpiVars.operationMode
+---|"ONLINE"
+---|"OFFLINE"
+
+EpiVars = {}
+EpiVars.serialId = 1
+EpiVars.classification = 0
+EpiVars.serialNumber = 0
+EpiVars.scaleId = 0
+---@type EpiVars.operationMode
+EpiVars.operationMode = "ONLINE"
+EpiVars.staticWeightRange = 0
+EpiVars.variableWeightRange = 0
+
+EpiVars = brmVariables.SavedVariableTable("EpiVars", EpiVars, true)
 
 local home = {}
 local modeVpt = {}
@@ -49,9 +66,10 @@ home.keypad.onF1KeyDown = function()
 end
 
 home.keypad.onF4KeyDown = function()
+    local value, isEnterKey = awtx.keypad.enterInteger(0, 0, 9999, -1, "Enter", "Orden T")
+    if not isEnterKey then return end
+    modeEpi.init(value)
     CurrentMode = modeEpi
-    local i = os.clock()
-    CurrentMode.screen:show()
 end
 
 home.keypad.onQwertyKeyUp = function(...)
@@ -117,18 +135,19 @@ function home.keypad.onTargetKeyHold()
     local dbHandle = database.products._dbHandle
     dbHandle:exec("BEGIN TRANSACTION")
 
-    for _,row in pairs(tr) do
-        if #row>=11 then 
-        local result,query = pcall(function()
-            return string.format("REPLACE INTO products VALUES(%d,'%s','%s',%f,%f,%f,%f,%f,%f,%f,'%s')",
-        tonumber(row[1]), row[2], row[3], tonumber(row[4]), tonumber(row[5]),
-        tonumber(row[6]), tonumber(row[7]), tonumber(row[8]), tonumber(row[9]), tonumber(row[10]), row[11]) end)
-        if result then 
-            dbHandle:exec(query)
-        end
+    for _, row in pairs(tr) do
+        if #row >= 11 then
+            local result, query = pcall(function()
+                return string.format("REPLACE INTO products VALUES(%d,'%s','%s',%f,%f,%f,%f,%f,%f,%f,'%s')",
+                    tonumber(row[1]), row[2], row[3], tonumber(row[4]), tonumber(row[5]),
+                    tonumber(row[6]), tonumber(row[7]), tonumber(row[8]), tonumber(row[9]), tonumber(row[10]), row[11])
+            end)
+            if result then
+                dbHandle:exec(query)
+            end
         end
     end
-        dbHandle:exec("COMMIT")
+    dbHandle:exec("COMMIT")
 end
 
 return home

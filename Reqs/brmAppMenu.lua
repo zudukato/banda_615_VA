@@ -91,3 +91,4 @@ function brmAppMenu.onStart()
 end
 
 brmAppMenu.onStart()
+return brmAppMenu
