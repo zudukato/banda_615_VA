@@ -1,0 +1,17 @@
+^XA
+^XFE:VTA6P_SIGA.ZPL^FS
+^FN01^FD{{product_description}}^FS
+^FN02^FD{{objetive_weight}}^FS
+^FN03^FD{{date}}/^FS
+^FN04^FD{{gtin}}^FS
+^FN05^FD>;>{{expiration_date}}^FS
+^FN06^FD{{pieces_number}}^FS
+^FN07^FD{{description}}^FS
+^FN08^FD{A.56.1}^FS
+^FN21^FDLA,{A.60.1}^FS
+^FN22^FD{A.57.1}^FS
+^FN23^FD{A.58.1}^FS
+^FN24^FD{A.59.1}^FS
+^FN25^FD{product_line}^FS
+^FN26^FD{id_product}^FS
+^XZ

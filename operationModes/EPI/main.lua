@@ -13,10 +13,10 @@ local brmVariables = require("Reqs.brmVariables")
 ---|"OFFLINE"
 
 EpiVars = {}
-EpiVars.serialId = 1
-EpiVars.classification = 0
-EpiVars.serialNumber = 0
-EpiVars.scaleId = 0
+EpiVars.serialId = "R1"
+EpiVars.classification = 1
+EpiVars.scaleId = 1
+EpiVars.operationNumber = 1
 ---@type EpiVars.operationMode
 EpiVars.operationMode = "ONLINE"
 EpiVars.staticWeightRange = 0
@@ -68,8 +68,7 @@ end
 home.keypad.onF4KeyDown = function()
     local value, isEnterKey = awtx.keypad.enterInteger(0, 0, 9999, -1, "Enter", "Orden T")
     if not isEnterKey then return end
-    modeEpi.init(value)
-    CurrentMode = modeEpi
+    modeEpi.init(value, home)
 end
 
 home.keypad.onQwertyKeyUp = function(...)
@@ -95,12 +94,16 @@ function home.keypad.onPrintKeyDown()
 end
 
 home.onStart = function()
-    local prevKeypad = home.keypad
-    home.keypad = {}
+    CurrentMode = {keypad = {}}
     awtx.os.enhancedTimer.new(1, function()
-        home.keypad = prevKeypad
-        home.screen:show()
+        home.init()
     end, 3000, 1)
+end
+
+home.init = function ()
+    CurrentMode = home
+    awtx.weight.requestTareClear()
+    home.screen:show()
 end
 ----ModeVPT
 modeVpt.operationActive = true
@@ -132,7 +135,8 @@ end
 
 function home.keypad.onTargetKeyHold()
     local tr = table.csvToTable("C:\\Apps\\Reqs\\New CA.csv")
-    local dbHandle = database.products._dbHandle
+---@diagnostic disable-next-line: invisible
+    local dbHandle = database.tables.products._dbHandle
     dbHandle:exec("BEGIN TRANSACTION")
 
     for _, row in pairs(tr) do
@@ -148,6 +152,7 @@ function home.keypad.onTargetKeyHold()
         end
     end
     dbHandle:exec("COMMIT")
+    print("done")
 end
 
 return home

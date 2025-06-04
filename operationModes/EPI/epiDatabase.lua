@@ -4,19 +4,83 @@ local database
 database = brmSqlClasses:new("EPI")
 Databases.EPI = database
 
+---@class epiDatabase.productRow
+---@field product_id integer
+---@field name string
+---@field product_line string
+---@field gtin string
+---@field objective_weight number
+---@field tare number
+---@field mode integer
+---@field label_type integer
+---@field expiration integer
+---@field piece_count integer
+---@field description string
 
-database.products = database:newTable("products",{
-    "id_product INTEGER NOT NULL PRIMARY KEY",
-    "product_description  TEXT",
-    "production_line TEXT",
-    "gtin INTEGER",
+local products = database:newTable("products",{
+    "product_id INTEGER NOT NULL PRIMARY KEY",
+    "name TEXT",
+    "product_line TEXT",
+    "gtin TEXT",
     "objective_weight REAL",
     "tare REAL",
     "mode INTEGER",
     "label_type INTEGER",
     "expiration INTEGER",
-    "pieces_number INTEGER",
+    "piece_count INTEGER",
     "description TEXT"
 }
 )
+---@class epiDatabase.OfflineWeight
+---@field gtin string
+---@field description string
+---@field product_id integer
+---@field product_description string
+---@field product_line string
+---@field tare number
+---@field tareMg integer
+---@field piece_count integer
+---@field scale_id integer
+---@field serial_id integer
+---@field classification integer
+---@field operation_number integer
+---@field serial_number string
+---@field real_weight number
+---@field net_weight number
+---@field net_weightLb number
+---@field lote string
+---@field order integer
+---@field expiration string
+---@field eanQr string
+---@field eanPvCi string
+---@field eanPvSi string
+
+local offLineWight = database:newTable("offLineWight",{
+    "gtin TEXT",
+    "description TEXT",
+    "product_id INTEGER",
+    "product_description TEXT",
+    "product_line TEXT",
+    "tare REAL",
+    "tareMg INTEGER",
+    "piece_count INTEGER",
+    "scale_id INTEGER",
+    "serial_id INTEGER",
+    "classification INTEGER",
+    "operation_number INTEGER",
+    "serial_number TEXT",
+    "real_weight REAL",
+    "net_weight REAL",
+    "net_weightLb REAL",
+    "lote TEXT",
+    "order INTEGER",
+    "expiration TEXT",
+    "eanQr TEXT",
+    "eanPvCi TEXT",
+    "eanPvSi TEXT"
+
+})
+
+if products then database.tables.products = products end
+if offLineWight then database.tables.offLineWight = offLineWight end
 return database

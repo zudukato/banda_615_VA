@@ -78,6 +78,9 @@ function BackToZero.notZero()
         EventsHandle.events[EventsHandle.eventList.notBackToZero] = nil
     end
 end
+function BackToZero.checkZero()
+    return not EventsHandle.events[EventsHandle.eventList.notBackToZero]
+end
 
 function BackToZero.zero(_, setpointActive)
     EventsHandle.events.notBackToZero = false
@@ -90,7 +93,6 @@ end
 
 --------------------------------------Modules--------------------------------------
 local brmChain = require("Reqs.brmChain")
-local peripherals = require("Peripherals.brmPeripherals")
 CurrentMode = require("operationModes.EPI.main") or {}
 
 local brmUtilities = require("Reqs.brmUtilities")

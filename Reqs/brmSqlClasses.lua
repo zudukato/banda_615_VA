@@ -1,29 +1,18 @@
 local brmUtilities = require("Reqs.brmUtilities")
 
 ---@class brmDatabase
-local brmDatabase = {
-  ---params definition---
-  ---@type string
-  path = "",
-  ---@type string
-  databaseName = "",
-  ---@type table
-  _dbHandle = nil
-}
+---@field path string
+---@field databaseName string
+---@field tables table<string, tableClass>
+---@field private _dbHandle any
+local brmDatabase = {}
 brmDatabase.__index = brmDatabase
-
 ---@class tableClass
-local tableClass = {
-  ----params-----
-  ---@type string
-  tableName = "",
-  ---@type table
-  _fieldsDefinition = {},
-  ---@type table
-  _headers = {},
-  ---@type table
-  _dbHandle = nil
-}
+---@field tableName string
+---@field private _fieldsDefinition table
+---@field private _headers table
+---@field private _dbHandle table
+local tableClass = {}
 tableClass.__index = tableClass
 
 --Constructor of the class brmDatabase
@@ -35,6 +24,7 @@ function brmDatabase:new(databaseName, path)
   local instance = {}
   setmetatable(instance, self)
   instance.path = path or "C:\\Apps\\Database\\"
+  instance.tables = {}
   awtx.os.makeDirectory(instance.path)
   instance.databaseName = (databaseName or "Revuelta") .. ".db"
   instance:open()
@@ -65,8 +55,12 @@ end
 function brmDatabase:newTable(tableName, fieldsDefinition)
   if not self.dbHandle:isopen() then return print("Database is closed") end
   if type(tableName) ~="string" or type(fieldsDefinition) ~= "table" then print("tableName = nil or fields = nil") return end
-  ---@type tableClass
-  return tableClass:new(tableName, fieldsDefinition, self.dbHandle)
+  ---@type tableClass|nil
+  local newTable = tableClass:new(tableName, fieldsDefinition, self.dbHandle)
+  if newTable then
+    self.tables[newTable.tableName] = newTable
+  end
+  return newTable
 end
 
 --Handler for database tables

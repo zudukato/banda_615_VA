@@ -374,6 +374,7 @@ end
 function Screen:show()
     self:_initScreen()
     self._screen:show()
+    awtx.os.systemEvents(200)
     self:_initScreen(true)
 end
 
