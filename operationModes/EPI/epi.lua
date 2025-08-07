@@ -1,9 +1,11 @@
 local brmScreen = require("Reqs.brmScreenRAD6015")
 local brmScaleKeys = require("Reqs.brmScaleKeys")
 local brmUtilities = require("Reqs.brmUtilities")
+local awtxReqConstants = require("Reqs.awtxReqConstants")
 local date
 local epiMode = {}
-
+local module = {}
+_PrintFormat = ""
 ---@type epiDatabase.productRow
 local productRow
 local previousMode
@@ -19,17 +21,21 @@ epiMode.screen:newScale("mainScale", 0, 2, { x = 0, y = 15 })
 epiMode.screen:newLabel("classificationLabel", "CLASSIFICATION", { x = 0, y = 64 }, { width = 120, height = 10 }, 8, 4,
     true, false)
 epiMode.screen:newLabel("classificationValue", "", { x = 120, y = 64 }, { width = 30, height = 10 }, 8, 4, true, false)
-epiMode.screen:newLabel("loteLabel", "LOTE", { x = 155, y = 64 }, { width = 45, height = 10 }, 8, 4, true, false)
+epiMode.screen:newLabel("loteLabel", Language.batch, { x = 155, y = 64 }, { width = 45, height = 10 }, 8, 4, true, false)
 epiMode.screen:newLabel("loteValue", "", { x = 200, y = 64 }, { width = 64, height = 10 }, 8, 4, true, false)
-epiMode.screen:newLabel("productLabel", "PRODUCT", { x = 0, y = 80 }, { width = 80, height = 10 }, 8, 4, true, false)
+epiMode.screen:newLabel("productLabel", Language.product, { x = 0, y = 80 }, { width = 80, height = 10 }, 8, 4, true,
+    false)
 epiMode.screen:newLabel("productValue", "", { x = 80, y = 80 }, { width = 40, height = 10 }, 8, 4, true, true)
-epiMode.screen:newLabel("orderLabel", "ORDEN-T", { x = 130, y = 80 }, { width = 70, height = 10 }, 8, 4, true, false)
+epiMode.screen:newLabel("orderLabel", Language._phrases.orderT, { x = 130, y = 80 }, { width = 70, height = 10 }, 8, 4,
+    true, false)
 epiMode.screen:newLabel("orderValue", "", { x = 200, y = 80 }, { width = 120, height = 10 }, 8, 4, true, false)
-epiMode.screen:newLabel("serialNumberLabel", "SER. NUM.", { x = 0, y = 96 }, { width = 80, height = 10 }, 8, 4, true,
+epiMode.screen:newLabel("serialNumberLabel", Language._phrases.seralNumber, { x = 0, y = 96 },
+    { width = 80, height = 10 }, 8, 4, true,
     false)
 epiMode.screen:newLabel("serialNumberValue", "", { x = 80, y = 96 }, { width = 120, height = 10 }, 8, 4, true, false)
 epiMode.screen:newLabel("productDescription", "", { x = 0, y = 110 }, { width = 320, height = 20 }, 9, 6, true, false)
-epiMode.screen:newLabel("statusBar", "EMPAQUE DE PRODUCTO INDIVIDUAL", { x = 0, y = 135 }, { width = 320, height = 10 },
+epiMode.screen:newLabel("statusBar", Language._phrases.packIndividualProduct, { x = 0, y = 135 },
+    { width = 320, height = 10 },
     10, 4, true, true)
 
 epiMode.screen:newButton("enter", "ENTER", { x = 130, y = 148 }, { width = 60, height = 30 }, 2, 4, true, false)
@@ -39,7 +45,7 @@ epiMode.screen:newButton("exit", "EXIT", { x = 258, y = 148 }, { width = 60, hei
 ---@type awtx.os.enhancedTimer
 local messageTimer
 
-local function messageStatusBar(message, time)
+function module.messageStatusBar(message, time)
     time = time or 1000
     if messageTimer then messageTimer:pause() end
     epiMode.screen.labels.statusBar:setText(message)
@@ -47,13 +53,14 @@ local function messageStatusBar(message, time)
         epiMode.screen.labels.statusBar:setText("")
     end, time, 1)
 end
+
 local index = 1
 local fields = {
     { label = epiMode.screen.labels.productLabel, value = epiMode.screen.labels.productValue, maxValueSize = 4, numeric = true },
 }
 local field = fields[index]
 
-local function onQwertyKeyUp(char)
+function module.onQwertyKeyUp(char)
     local text = field.value.text
     if #text >= field.maxValueSize then return end
     if field.numeric and not tonumber(char) then return end
@@ -66,12 +73,12 @@ function epiMode.keypad.onNumericKeyDown(number)
     if epiMode.keypad.onQwertyKeyUp then epiMode.keypad.onQwertyKeyUp(char) end
 end
 
-local function onClearKeyUp()
+function module.onClearKeyUp()
     local newString = field.value.text:sub(1, -2) or ""
     field.value:setText(field.value.text:sub(1, -2))
 end
 
-local function getParams()
+function module.getParams()
     local lote            = epiMode.screen.labels.loteValue.text
     local serialNumber    = epiMode.screen.labels.serialNumberValue.text
     local dataTime        = os.time(date)
@@ -115,7 +122,7 @@ local function getParams()
 end
 
 ---@param dataParams epiMode.dataParams
-local function doPrint(dataParams)
+function module.doPrint(dataParams)
     local path = "c:\\Apps\\PrintFormats\\"
     local printFormatForWeightMode = { "VariableWeight.txt", "StaticWeight.txt", "VariableWeight.txt" }
     local labelType = productRow.label_type or 0
@@ -126,17 +133,18 @@ local function doPrint(dataParams)
         path = path .. "PrintFormat" .. labelType .. "txt"
     end
     local file = io.open(path, "r")
-    if not file then return brmUtilities.doScroll("No File") end
+    if not file then return brmUtilities.doScroll(Language.no .. " " .. Language.file) end
     ---@type string
     local printFormat = file:read("*all")
     printFormat = printFormat:interpolate(dataParams)
-    print(printFormat)
+    _PrintFormat = printFormat
+    awtx.printer.printFmt(2)
     file:close()
 end
 
 local Response
 
-local function dataResponse(...)
+function module.dataResponse(...)
     local serialNumber = epiMode.screen.labels.serialNumberValue.text
     local serialResponse = awtx.serial.getRx(1)
     local socketResponse = awtx.socket.getRx(1)
@@ -146,27 +154,27 @@ local function dataResponse(...)
     if response == serialNumber then Response = response end
 end
 
-local function waitResponse(dataString)
+function module.sendDataString(dataString)
     local pasKeypad = epiMode.keypad
     epiMode.keypad = {}
     local responseFlag = false
     awtx.serial.setEomChar(1, 13)
     awtx.socket.setEomChar(1, 13)
-    awtx.serial.registerEomEvent(1, dataResponse)
-    awtx.socket.registerEomEvent(1, dataResponse)
-    epiMode.screen.labels.statusBar:setText("wait....")
+    awtx.serial.registerEomEvent(1, module.dataResponse)
+    awtx.socket.registerEomEvent(1, module.dataResponse)
+    epiMode.screen.labels.statusBar:setText(Language.wait.."....")
     for i = 1, 10 do
         awtx.serial.send(1, dataString)
         awtx.socket.send(1, dataString)
         awtx.os.systemEvents(3000)
         if Response then
             responseFlag = true
-            Response = ""
-            messageStatusBar("Done")
+            Response = nil
+            module.messageStatusBar(Language.done)
             break
         end
     end
-    if not responseFlag then messageStatusBar("error") end
+    if not responseFlag then module.messageStatusBar(Language.error) end
     awtx.serial.unregisterEomEvent(1)
     awtx.socket.unregisterEomEvent(1)
     epiMode.keypad = pasKeypad
@@ -174,7 +182,7 @@ local function waitResponse(dataString)
 end
 
 ---@param dataParams epiMode.dataParams
-local function sendDataString(dataParams)
+function module.getDataString(dataParams)
     local data = {
         dataParams.serialId,                        --serialId
         ("%01i"):format(dataParams.operationMode),  --operation mode
@@ -193,36 +201,14 @@ local function sendDataString(dataParams)
         "\r\n",                                     --eom
     }
     local dataString = table.concat(data, "")
-    return waitResponse(dataString)
+    return dataString
 end
 
-
--- function modeEpi.keypad.onF2KeyDown()
---     index = index == #fields and 1 or index + 1
---     field = fields[index]
---     field.label:setInverted(true)
---     if index ~= 1 then
---         fields[index - 1].label:setInverted(false)
---     else
---         fields[#fields].label:setInverted(false)
---     end
--- end
-
--- function modeEpi.keypad.onF1KeyDown()
---     index = index == 1 and #fields or index - 1
---     field = fields[index]
---     field.label:setInverted(true)
---     if index ~= #fields then
---         fields[index + 1].label:setInverted(false)
---     else
---         fields[1].label:setInverted(false)
---     end
--- end
-
-local function takeWeight()
+function epiMode.takeWeight()
     local mode = productRow.mode
-    if not BackToZero.checkZero() then return messageStatusBar("NO REGRESO A CERO") end
-    if EventsHandle.events[EventsHandle.eventList.noMinWt] then return messageStatusBar("SUBA PESO") end
+    if not BackToZero.checkZero() then return module.messageStatusBar(Language._phrases.noReturnToZero) end
+    if EventsHandle.events[EventsHandle.eventList.noMinWt] then return module.messageStatusBar(Language._phrases
+        .weightToLow) end
     brmUtilities.waitStability(0)
     local net = awtx.weight.getCurrent(0).net
     if mode == 2 or mode == 1 then
@@ -230,25 +216,37 @@ local function takeWeight()
         local upTolerance = objectiveWeight + objectiveWeight * (0.03)
         local lowTolerance = objectiveWeight - objectiveWeight * (0.03)
         if upTolerance < net or lowTolerance > net then
-            messageStatusBar("PESO FUERA DE RANGO")
+            module.messageStatusBar(Language._phrases.weightOutOfRange)
             return
         end
     end
-    local dataParams = getParams()
+    local dataParams = module.getParams()
     if EpiVars.operationMode == "ONLINE" then
-        if not sendDataString(dataParams) then return end
+        local dataString = module.getDataString(dataParams)
+        if not module.sendDataString(dataString) then return end
+        module.doPrint(dataParams)
     else
         Databases.EPI.tables.offLineWight:addRow(dataParams)
     end
-    doPrint(dataParams)
+    module.updateOperationNumber()
+    module.updateSerialAndLote()
     BackToZero.notZero()
 end
 
-local function getProduct()
+function module.updateOperationNumber()
+    local date = os.date("%Y-%m-%d")
+    EpiVars.operationNumber = EpiVars.operationNumber + 1
+    if EpiVars.date ~= date then
+        EpiVars.date = date
+        EpiVars.operationNumber = 1
+    end
+end
+
+function module.getProduct()
     local idProduct       = epiMode.screen.labels.productValue.text
     local value, response = Databases.EPI.tables.products:find("product_id", idProduct)
     if #value == 0 then
-        epiMode.screen.labels.statusBar:setText("producto no encontrado")
+        epiMode.screen.labels.statusBar:setText(Language._phrases.productNotFound)
         awtx.os.enhancedTimer.new(1, function()
             epiMode.screen.labels.statusBar:setText("")
         end, 3000, 1
@@ -262,21 +260,20 @@ local function getProduct()
     productRow = product
     epiMode.keypad.onQwertyKeyUp = nil
     epiMode.keypad.onClearKeyUp = nil
-    epiMode.onEnter = takeWeight
+    epiMode.onEnter = epiMode.takeWeight
     epiMode.screen.buttons.back:setVisible(true)
     epiMode.keypad.onF4KeyDown = function(...)
-        epiMode.keypad.onQwertyKeyUp = onQwertyKeyUp
-        epiMode.keypad.onClearKeyUp = onClearKeyUp
-        epiMode.onEnter = getProduct
+        epiMode.keypad.onQwertyKeyUp = module.onQwertyKeyUp
+        epiMode.keypad.onClearKeyUp = module.onClearKeyUp
+        epiMode.onEnter = module.getProduct
         epiMode.keypad.onF4KeyDown = nil
     end
 end
 
-
-epiMode.onEnter = getProduct
+epiMode.onEnter = module.getProduct
 local function exit()
     if not previousMode then return end
-    brmUtilities.doScroll("exit", 1500)
+    brmUtilities.doScroll(Language.exit, 1500)
     previousMode.init()
 end
 
@@ -288,21 +285,23 @@ function epiMode.keypad.onEnterKeyUp()
     epiMode.onEnter()
 end
 
-local function defaultValues(activeExitButton)
-    epiMode.onEnter = getProduct
-    epiMode.keypad.onQwertyKeyUp = onQwertyKeyUp
-    epiMode.keypad.onClearKeyUp = onClearKeyUp
+function module.updateSerialAndLote()
     date = os.date("*t")
-    local dateFormat = os.date("%y-%m-%d")
-    local hour = os.date("%I:%M:%S%p")
     local serial = string.format("%03d%02d%03d%04d", EpiVars.scaleId, os.date("%y"), date.yday, EpiVars.operationNumber)
     local loteValue = ("%02i%02i%02i"):format(date.day, date.month, os.date("%y"))
+    epiMode.screen.labels.loteValue:setText(loteValue)
+    epiMode.screen.labels.serialNumberValue:setText(serial)
+end
+
+function module.defaultValues(activeExitButton)
+    epiMode.onEnter = module.getProduct
+    epiMode.keypad.onQwertyKeyUp = module.onQwertyKeyUp
+    epiMode.keypad.onClearKeyUp = module.onClearKeyUp
+    module.updateSerialAndLote()
     epiMode.screen.labels.classificationValue:setText("" .. EpiVars.classification)
     epiMode.screen.labels.statusBar:setText("")
     epiMode.screen.labels.productDescription:setText("")
-    epiMode.screen.labels.loteValue:setText(loteValue)
     epiMode.screen.labels.productValue:setText("")
-    epiMode.screen.labels.serialNumberValue:setText(serial)
     epiMode.screen.buttons.back:setVisible(false)
     epiMode.screen.buttons.exit:setVisible(activeExitButton)
     if activeExitButton then
@@ -313,9 +312,11 @@ local function defaultValues(activeExitButton)
 end
 
 function epiMode.init(order, prevMode)
+    awtx.fmtPrint.set(2, "{A.99.1}")
+    awtx.fmtPrint.varSet(99, "_PrintFormat", "printFormat", awtxReqConstants.fmtPrint.TYPE_STRING_VAR)
     previousMode = prevMode
     CurrentMode = epiMode
-    defaultValues(true)
+    module.defaultValues(true)
     epiMode.screen.labels.orderValue:setText("" .. order)
     epiMode.screen:show()
     index = 1

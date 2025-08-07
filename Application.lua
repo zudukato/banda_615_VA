@@ -135,8 +135,9 @@ local function onStart()
     awtx.setpoint.registerOutputEvent(39, onMinWt)
     awtx.setpoint.registerOutputEvent(38, BackToZero.zero)
     onMinWt(nil, false)
-    brmChain.onStart()
-    if type(CurrentMode.onStart) == 'function' then CurrentMode.onStart() end
+    if type(CurrentMode.onStart) == 'function' then 
+        CurrentMode.onStart() 
+    end
 
     if startUp then
         startUp:show()

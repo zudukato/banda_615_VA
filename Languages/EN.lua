@@ -48,6 +48,13 @@ local language = {
     format = "FORMAT",
     operation = "OPERATION",
     mode = "MODE",
+    batch = "BATCH",
+    product = "PRODUCT",
+    file = "FILE",
+    wait = "WAIT",
+    printer = "PRINTER",
+    classification = "CLASSIFICATION",
+
 
     --------phrases--------
     ---@class _phrases
@@ -62,7 +69,7 @@ local language = {
         positionError = "POSITION ERROR",
         getOffScale = "GET OFF SCALE",
         badLctMode = "BAD LCT MODE",
-        chPassword = "CH.CHPASSWORD",
+        chPassword = "CH.PASSWORD",
         ticketNumber = " TICK.NUM",
         idDoNotExist = "ID DO NOT EXIST",
         alreadyExist= "ALREADY EXIST",
@@ -72,8 +79,28 @@ local language = {
         operationMode = "Oper.Mod",
         formatDoNotExist= "FORMAT DO NOT EXIT",
         minWt = "MIN WEIGHT",
-    }
+        noReturnToZero = "NO RETURN TO ZERO",
+        increaseWeight="INCREASE WEIGHT",
+        weightToLow = "WEIGHT TO LOW",
+        weightOutOfRange = "WEIGHT OUT OF RANGE",
+        validateFinishedProduct = "VALIDATE FINISHED PRODUCT",
+        sendStoredMovements = "SEND STORED MOVEMENTS",
+        indicatorConfiguration= "INDICATOR CONFIGURATION",
+        packIndividualProduct= "PACK INDIVIDUAL PRODUCT",
+        validateFinishedProductMenu = "VALIDATE FINISHED PRODUCT...........[F1]",
+        sendStoredMovementsMenu = "SEND STORED MOVEMENTS...............[F2]",
+        indicatorConfigurationMenu = "INDICATOR CONFIGURATION.............[F3]",
+        packIndividualProductMenu = "PACK INDIVIDUAL PRODUCT.............[F4]",
+        initTransmission = "INIT TRANSMISSION [ENTER]",
+        orderT = "ORDER-T",
+        seralNumber = "SER. NUM.",
+        productNotFound = "PRODUCT NOT FOUND",
+        serialId = "SERIAL ID",
+        scaleId = "SCALE ID",
+        staticWeightRange = "STATIC WEIGHT RANGE",
+        variableWeightRange = "VARIABLE WEIGHT RANGE",
 
+    }
 
 }
 local notReturnNull = {
