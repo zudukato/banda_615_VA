@@ -1,16 +1,114 @@
+---@class language
 local language = {
-    _name = "Espanol-La",
-    ready = "Listo",
+    _name = "ESPANOL-LA",
+    ready = "LISTO",
+    new = "NUEVO",
+    enter = "ENTRAR",
+    driver = "CONDUCTOR",
+    name = "NOMBRE",
+    cant = "CANTIDAD",
+    plates = "PLACAS",
+    saved = "GUARDADO",
+    ["in"] = "DENTRO",
+    id = "ID",
+    ok = "OK",
+    active = "ACTIVO",
+    change = "CAMBIO",
+    peripherals = "PERIFERICOS",
+    exit = "SALIR",
+    ticket = "TICKET",
+    config = "CONFIGURACION",
+    catalogs = "CATALOGOS",
+    print = "IMPRIMIR",
+    password = "CONTRASENA",
+    headers = "ENCABEZADOS",
+    header1 = "ENCABEZADO1",
+    header2 = "ENCABEZADO2",
+    add = "AGREGAR",
+    delete = "ELIMINAR",
+    edit = "EDITAR",
+    count = "CONTAR",
+    weight = "PESO",
+    weights = "PESOS",
+    databases = "BASES DE DATOS",
+    questionSign = "?",
+    done = "HECHO",
+    cancel = "CANCELAR",
+    select = "SELECCIONAR",
+    language = "IDIOMA",
+    sentinel = "CENTINELA",
+    variables = "VARIABLES",
+    all = "TODO",
+    reset = "REINICIAR",
+    reboot = "REINICIAR SISTEMA",
+    no = "NO",
+    yes = "SI",
+    error = "ERROR",
+    printing = "IMPRIMIENDO",
+    format = "FORMATO",
+    operation = "OPERACION",
+    mode = "MODO",
+    batch = "LOTE",
+    product = "PRODUCTO",
+    file = "ARCHIVO",
+    wait = "ESPERAR",
+    printer = "IMPRESORA",
+    classification = "CLASIFICACION",
 
 
-    _phrases = {}
-
-
+    --------frases--------
+    ---@class _phrases
+    _phrases = {
+        resetAll = "REINICIAR TODO",
+        noPassword = "SIN CONTRASENA",
+        isRequired = " ES REQUERIDO",
+        noZero = "SIN CERO",
+        noMinWeight = "CANT., PESO MIN. NO PERMITIDO",
+        doNotExist = " NO EXISTE",
+        weightOk = "PESO OK",
+        positionError = "ERROR DE POSICION",
+        getOffScale = "RETIRESE DE LA BASCULA",
+        badLctMode = "MODO LCT INCORRECTO",
+        chPassword = "CAMB. CONTRASENA",
+        ticketNumber = " NUM. TICKET",
+        idDoNotExist = "ID NO EXISTE",
+        alreadyExist= "YA EXISTE",
+        enterValue= "INGRESE VALOR",
+        pesadasDB = "BASE PESADAS",
+        enterId = "INGRESE ID",
+        operationMode = "Modo.Oper.",
+        formatDoNotExist= "FORMATO NO EXISTE",
+        minWt = "PESO MIN.",
+        noReturnToZero = "NO VUELVE A CERO",
+        increaseWeight="AUMENTAR PESO",
+        weightToLow = "PESO MUY BAJO",
+        weightOutOfRange = "PESO FUERA DE RANGO",
+        validateFinishedProduct = "VALIDAR PRODUCTO TERMINADO",
+        sendStoredMovements = "ENVIAR MOVIMIENTOS ALMACENADOS",
+        indicatorConfiguration= "CONFIGURACION DE INDICADOR",
+        packIndividualProduct= "EMPAQUETAR PRODUCTO INDIVIDUAL",
+        validateFinishedProductMenu = "VALIDAR PRODUCTO TERMINADO..........[F1]",
+        sendStoredMovementsMenu = "ENVIAR MOVIMIENTOS ALMACENADOS......[F2]",
+        indicatorConfigurationMenu = "CONFIGURACION DE INDICADOR..........[F3]",
+        packIndividualProductMenu = "EMPAQUETAR PRODUCTO INDIVIDUAL......[F4]",
+        initTransmission = "INICIAR TRANSMISION [ENTER]",
+        orderT = "ORDEN-T",
+        seralNumber = "NUM. SERIE",
+        productNotFound = "PRODUCTO NO ENCONTRADO",
+        serialId = "ID SERIE",
+        scaleId = "ID BASCULA",
+        staticWeightRange = "RANGO DE PESO ESTATICO",
+        variableWeightRange = "RANGO DE PESO VARIABLE",
+        bandSpeed = "VELOCIDAD DE BANDA",
+    }
 
 }
-local notReturnNull = {__index = function (self,key)
-    return rawget(self,key) or string.format("$%s",key)
-end}
+local notReturnNull = {
+    __index = function(self, key)
+        return rawget(self, key) or string.format("$%s", key)
+    end
+}
 setmetatable(language._phrases, notReturnNull)
 setmetatable(language, notReturnNull)
+
 return language

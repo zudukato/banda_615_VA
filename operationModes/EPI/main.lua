@@ -19,8 +19,10 @@ EpiVars.serialId = "R1"
 EpiVars.classification = 1
 EpiVars.scaleId = 1
 EpiVars.operationNumber = 1
+EpiVars.bandSpeed = 0
 ---@type EpiVars.operationMode
 EpiVars.operationMode = "ONLINE"
+EpiVars.boxWeight = false
 EpiVars.staticWeightRange = 0
 EpiVars.variableWeightRange = 0
 
@@ -97,6 +99,9 @@ function home.keypad.onPrintKeyDown()
 end
 
 home.onStart = function()
+    _BandSpeed = EpiVars.bandSpeed
+    awtx.fmtPrint.varSet(60, "_BandSpeed","Band speed (hz)",awtxConstants.fmtPrint.TYPE_FLOAT_VAR )
+    awtx.fmtPrint.set(2,"{A.60.1}")
     CurrentMode = { keypad = {} }
     awtx.os.enhancedTimer.new(1, function()
         home.init()

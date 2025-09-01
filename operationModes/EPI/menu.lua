@@ -43,6 +43,14 @@ function epiMenu.changeVariableWeightRange()
     EpiVars.variableWeightRange = variableWeightRange
 end
 
+function epiMenu.changeBandSpeed()
+    ---@type number, boolean
+    local bandSpeed, isEnterKey =  awtx.keypad.enterFloat (EpiVars.bandSpeed, 0, 60, 1, -1, "enter speed (hz)", "", 2)
+    if not isEnterKey then return end
+    EpiVars.bandSpeed = bandSpeed
+    _BandSpeed = bandSpeed
+end
+
 MenusTree = MenusTree or {}
 table.insert(MenusTree.topMenu, {
     text = "Variables de Operacion", action = "MENU", value = "operationVars"
@@ -55,5 +63,7 @@ MenusTree.operationVars = {
     { text = Language.printer,                      action = "FUNC", value = epiMenu.changePrinter },
     { text = Language._phrases.staticWeightRange,   action = "FUNC", value = epiMenu.changeStaticWeightRange },
     { text = Language._phrases.variableWeightRange, action = "FUNC", value = epiMenu.changeVariableWeightRange },
+    { text = Language._phrases.bandSpeed, action = "FUNC", value = epiMenu.changeBandSpeed },
+
 
 }

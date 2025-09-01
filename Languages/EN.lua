@@ -99,6 +99,7 @@ local language = {
         scaleId = "SCALE ID",
         staticWeightRange = "STATIC WEIGHT RANGE",
         variableWeightRange = "VARIABLE WEIGHT RANGE",
+        bandSpeed = "BAND SPEED",
 
     }
 
