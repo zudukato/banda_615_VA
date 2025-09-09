@@ -100,6 +100,7 @@ local language = {
         staticWeightRange = "STATIC WEIGHT RANGE",
         variableWeightRange = "VARIABLE WEIGHT RANGE",
         bandSpeed = "BAND SPEED",
+        pendingTransmission = "PENDING TRANSMISSION"
 
     }
 
