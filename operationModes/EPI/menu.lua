@@ -21,9 +21,10 @@ function epiMenu.changeScaleId()
 end
 
 function epiMenu.changeOperationMode()
-    local operationMode, isEnterKey = awtx.keypad.selectList("ONLINE,OFFLINE", 0, -1, Language.select)
+    local operationModes = {"ONLINE","OFFLINE"}
+    local operationMode, isEnterKey = awtx.keypad.selectList(table.concat(operationModes,","), 0, -1, Language.select)
     if not isEnterKey then return end
-    EpiVars.operationMode = operationMode
+    EpiVars.operationMode =operationMode[operationMode]
 end
 
 function epiMenu.changePrinter()
@@ -64,6 +65,20 @@ MenusTree.operationVars = {
     { text = Language._phrases.staticWeightRange,   action = "FUNC", value = epiMenu.changeStaticWeightRange },
     { text = Language._phrases.variableWeightRange, action = "FUNC", value = epiMenu.changeVariableWeightRange },
     { text = Language._phrases.bandSpeed, action = "FUNC", value = epiMenu.changeBandSpeed },
+    { text = "prueba semaforo", onlySupport=true ,action = "MENU", value = "testLights" },
+}
 
-
+MenusTree.testLights = {
+    { text = "Verde", action = "FUNC", value = function ()
+       awtx.setpoint.activate(6)
+       awtx.setpoint.deactivate(7)
+    end },
+    { text = "Amarillo", action = "FUNC", value =function ()
+       awtx.setpoint.activate(7)
+       awtx.setpoint.deactivate(6)
+    end },
+    { text = "Rojo", action = "FUNC", value = function ()
+       awtx.setpoint.deactivate(6)
+       awtx.setpoint.deactivate(7)
+    end },
 }
