@@ -24,7 +24,7 @@ function epiMenu.changeOperationMode()
     local operationModes = {"ONLINE","OFFLINE"}
     local operationMode, isEnterKey = awtx.keypad.selectList(table.concat(operationModes,","), 0, -1, Language.select)
     if not isEnterKey then return end
-    EpiVars.operationMode =operationMode[operationMode]
+    EpiVars.operationMode =operationModes[operationMode+1]
 end
 
 function epiMenu.changePrinter()
