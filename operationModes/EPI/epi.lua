@@ -2,6 +2,7 @@ local brmScreen = require("Reqs.brmScreenRAD6015")
 local brmScaleKeys = require("Reqs.brmScaleKeys")
 local brmUtilities = require("Reqs.brmUtilities")
 local awtxReqConstants = require("Reqs.awtxReqConstants")
+local dataComm = require("modules.dataComm")
 local date
 local epiMode = {}
 local module = {}
@@ -42,17 +43,6 @@ epiMode.screen:newButton("enter", "ENTER", { x = 130, y = 148 }, { width = 60, h
 epiMode.screen:newButton("back", "BACK", { x = 194, y = 148 }, { width = 60, height = 30 }, 2, 4, false, false)
 epiMode.screen:newButton("exit", "EXIT", { x = 258, y = 148 }, { width = 60, height = 30 }, 2, 4, true, false)
 
----@type awtx.os.enhancedTimer
-local messageTimer
-
-function module.messageStatusBar(message, time)
-    time = time or 1000
-    if messageTimer then messageTimer:pause() end
-    epiMode.screen.labels.statusBar:setText(message)
-    messageTimer = awtx.os.enhancedTimer.new(2, function()
-        epiMode.screen.labels.statusBar:setText("")
-    end, time, 1)
-end
 
 local index = 1
 local fields = {
@@ -78,48 +68,6 @@ function module.onClearKeyUp()
     field.value:setText(field.value.text:sub(1, -2))
 end
 
-function module.getParams()
-    local lote            = epiMode.screen.labels.loteValue.text
-    local serialNumber    = epiMode.screen.labels.serialNumberValue.text
-    local dataTime        = os.time(date)
-    local secToExpiration = 3600 * 24 * productRow.expiration ---seconds in a hour * 24 * days to expiration
-    local expiration      = os.date("%d%m%y", dataTime + secToExpiration)
-    local net             = awtx.weight.getCurrent(0).net
-    local netWeight       = productRow.mode == 2 and productRow.objective_weight or net
-    local netWeightLb     = awtx.weight.convertWeight(0, 2, netWeight, 1, 1)
-    local eanQr           = string.format("010%13s13%06i3103%06i370110%12s  www.ganaderiarevuelta.com.mx",
-        productRow.gtin, lote, netWeight * 1000, serialNumber)
-    local eanPvCi         = string.format("(01)0%13s(13)%06i(3103)%06i(37)01", productRow.gtin, lote, netWeight * 1000)
-    local eanPvSi         = string.format("010%13s13%06i3103%06i3701", productRow.gtin, lote, netWeight * 1000)
-
-    ---@class epiMode.dataParams
-    local data            = {
-        gtin = ("%13s"):format(productRow.gtin),
-        description = productRow.description,
-        productId = productRow.product_id,
-        productDescription = productRow.name,
-        productLine = productRow.product_line,
-        tare = productRow.tare,
-        tareMg = productRow.tare * 1000,
-        pieceCount = productRow.piece_count,
-        scaleId = EpiVars.scaleId,
-        serialId = EpiVars.serialId,
-        classification = EpiVars.classification,
-        operationNumber = EpiVars.operationNumber,
-        operationMode = EpiVars.operationMode == "ONLINE" and 5 or 6,
-        serialNumber = serialNumber,
-        realWeight = net,
-        netWeight = netWeight,
-        netWeightLb = netWeightLb,
-        lote = lote,
-        order = epiMode.screen.labels.orderValue.text,
-        expiration = expiration,
-        eanQr = eanQr,
-        eanPvCi = eanPvCi,
-        eanPvSi = eanPvSi
-    }
-    return data
-end
 
 ---@param dataParams epiMode.dataParams
 function module.doPrint(dataParams)
@@ -142,91 +90,39 @@ function module.doPrint(dataParams)
     file:close()
 end
 
-local Response
-
-function module.dataResponse(...)
-    local serialNumber = epiMode.screen.labels.serialNumberValue.text
-    local serialResponse = awtx.serial.getRx(1)
-    local socketResponse = awtx.socket.getRx(1)
-    ---@type string
-    local response = serialResponse or socketResponse
-    response = response:gsub("[\r\n]", "")
-    if response == serialNumber then Response = response end
-end
-
-function module.sendDataString(dataString)
-    local pasKeypad = epiMode.keypad
-    epiMode.keypad = {}
-    local responseFlag = false
-    awtx.serial.setEomChar(1, 13)
-    awtx.socket.setEomChar(1, 13)
-    awtx.serial.registerEomEvent(1, module.dataResponse)
-    awtx.socket.registerEomEvent(1, module.dataResponse)
-    epiMode.screen.labels.statusBar:setText(Language.wait.."....")
-    for i = 1, 10 do
-        awtx.serial.send(1, dataString)
-        awtx.socket.send(1, dataString)
-        awtx.os.systemEvents(3000)
-        if Response then
-            responseFlag = true
-            Response = nil
-            module.messageStatusBar(Language.done)
-            break
-        end
-    end
-    if not responseFlag then module.messageStatusBar(Language.error) end
-    awtx.serial.unregisterEomEvent(1)
-    awtx.socket.unregisterEomEvent(1)
-    epiMode.keypad = pasKeypad
-    return responseFlag
-end
-
----@param dataParams epiMode.dataParams
-function module.getDataString(dataParams)
-    local data = {
-        dataParams.serialId,                        --serialId
-        ("%01i"):format(dataParams.operationMode),  --operation mode
-        dataParams.serialNumber,                    --serialNumber
-        ("%10i"):format(dataParams.productId),      --productCode
-        ("%06.3f"):format(dataParams.netWeight),    --netWeight
-        dataParams.lote,                            --date
-        ("%05i"):format(dataParams.classification), --classification
-        dataParams.lote,                            --lote
-        ("%13d"):format(dataParams.order),          --order
-        dataParams.expiration,                      --expiration
-        dataParams.tareMg,                          --tare mili grams
-        dataParams.netWeightLb,                     --netWeightLb
-        "00000",                                    --zeros
-        ("%06.3f"):format(dataParams.realWeight),   --realWeight
-        "\r\n",                                     --eom
-    }
-    local dataString = table.concat(data, "")
-    return dataString
-end
-
-function epiMode.takeWeight()
+function epiMode.takeWeight(net)
     local mode = productRow.mode
-    if not BackToZero.checkZero() then return module.messageStatusBar(Language._phrases.noReturnToZero) end
-    if EventsHandle.events[EventsHandle.eventList.noMinWt] then return module.messageStatusBar(Language._phrases
-        .weightToLow) end
-    brmUtilities.waitStability(0)
-    local net = awtx.weight.getCurrent(0).net
+    if not BackToZero.checkZero() then return dataComm.messageStatusBar(Language._phrases.noReturnToZero) end
+    if not net then
+        if EventsHandle.events[EventsHandle.eventList.noMinWt] then return dataComm.messageStatusBar(Language._phrases
+            .weightToLow) end
+        brmUtilities.waitStability(0)
+        net = awtx.weight.getCurrent(0).net
+    end
     if mode == 2 or mode == 1 then
         local objectiveWeight = productRow.objective_weight
         local upTolerance = objectiveWeight + objectiveWeight * (0.03)
         local lowTolerance = objectiveWeight - objectiveWeight * (0.03)
         if upTolerance < net or lowTolerance > net then
-            module.messageStatusBar(Language._phrases.weightOutOfRange)
+            dataComm.messageStatusBar(Language._phrases.weightOutOfRange)
             return
         end
     end
-    local dataParams = module.getParams()
+    local dataParams = dataComm.getParams(
+    epiMode.screen.labels.loteValue.text,
+    epiMode.screen.labels.serialNumberValue.text,
+    epiMode.screen.labels.orderValue.text,
+    productRow
+    )
     if EpiVars.operationMode == "ONLINE" then
-        local dataString = module.getDataString(dataParams)
-        if not module.sendDataString(dataString) then return end
+        local dataString = dataComm.getDataString(dataParams)
+        dataComm.setExpectedResponse(epiMode.screen.labels.serialNumberValue.text)
+        if not dataComm.sendDataString(dataString) then return end
         module.doPrint(dataParams)
     else
-        Databases.EPI.tables.offLineWight:addRow(dataParams)
+        local dataParamsJson= awtx.json.encode(dataParams)
+        print(dataParamsJson)
+        Databases.EPI.tables.offlineWeight:addRow({dataParamsJson})
     end
     module.updateOperationNumber()
     module.updateSerialAndLote()

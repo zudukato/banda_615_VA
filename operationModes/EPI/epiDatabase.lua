@@ -1,7 +1,7 @@
 local brmSqlClasses = require("Reqs.brmSqlClasses")
 Databases = Databases or {}
 local database
-database = brmSqlClasses:new("EPI")
+database = brmSqlClasses:new("EPI","C:\\Database\\")
 Databases.EPI = database
 
 ---@class epiDatabase.productRow
@@ -55,32 +55,10 @@ local products = database:newTable("products",{
 ---@field eanPvCi string
 ---@field eanPvSi string
 
-local offLineWight = database:newTable("offLineWight",{
-    "gtin TEXT",
-    "description TEXT",
-    "product_id INTEGER",
-    "product_description TEXT",
-    "product_line TEXT",
-    "tare REAL",
-    "tareMg INTEGER",
-    "piece_count INTEGER",
-    "scale_id INTEGER",
-    "serial_id INTEGER",
-    "classification INTEGER",
-    "operation_number INTEGER",
-    "serial_number TEXT",
-    "real_weight REAL",
-    "net_weight REAL",
-    "net_weightLb REAL",
-    "lote TEXT",
-    "order INTEGER",
-    "expiration TEXT",
-    "eanQr TEXT",
-    "eanPvCi TEXT",
-    "eanPvSi TEXT"
-
+local offlineWeight = database:newTable("offlineWeight",{
+    "data_params TEXT"
 })
 
 if products then database.tables.products = products end
-if offLineWight then database.tables.offLineWight = offLineWight end
+if offlineWeight then database.tables.offlineWeight = offlineWeight end
 return database
