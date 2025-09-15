@@ -68,6 +68,18 @@ function dataComm.dataResponse(...)
     if response == expectedResponse then Response = response end
 end
 
+function dataComm.waitResponse()
+    for j = 1,30 do
+        awtx.os.systemEvents(100)
+        if Response then
+            Response = nil
+            dataComm.messageStatusBar(Language.done,1000)
+            return true
+        end
+    end
+    return false
+end
+
 function dataComm.sendDataString(dataString)
     local pasKeypad = CurrentMode.keypad
     CurrentMode.keypad = {}
@@ -77,16 +89,13 @@ function dataComm.sendDataString(dataString)
     awtx.serial.registerEomEvent(1, dataComm.dataResponse)
     awtx.socket.registerEomEvent(1, dataComm.dataResponse)
     dataComm.messageStatusBar(Language.wait .. "....")
+
+
     for i = 1, 10 do
         awtx.serial.send(1, dataString)
         awtx.socket.send(1, dataString)
-        awtx.os.systemEvents(3000)
-        if Response then
-            responseFlag = true
-            Response = nil
-            dataComm.messageStatusBar(Language.done,1000)
-            break
-        end
+         responseFlag = dataComm.waitResponse()
+        if responseFlag then break end
     end
     if not responseFlag then dataComm.messageStatusBar(Language.error,3000) end
     awtx.serial.unregisterEomEvent(1)

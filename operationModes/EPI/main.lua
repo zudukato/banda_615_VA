@@ -8,6 +8,7 @@ local database = require("operationModes.EPI.epiDatabase")
 local epiMenu = require("EPI.menu")
 local brmVariables = require("Reqs.brmVariables")
 local brmChain = require("Reqs.brmChain")
+local pendingTransmission = require("operationModes.EPI.pendingTransmission")
 
 ---@alias EpiVars.operationMode
 ---|"ONLINE"
@@ -58,6 +59,12 @@ home.screen:newButton("epi", "EPI", { x = 194, y = 148 }, { width = 60, height =
 --keys assignations
 home.keypad = table.copy(brmScaleKeys.defaultKeypad) or {}
 home.rpn = table.copy(brmScaleKeys.defaultRpn) or {}
+
+home.keypad.onF2KeyUp = function (...)
+    home.exit()
+    pendingTransmission.init(home)
+end
+
 home.keypad.onF3KeyDown = function(...)
     local value, isEnterKey = awtx.keypad.enterInteger(0, 0, 999999, 3000, Language.enter.." "..Language.password)
     if not isEnterKey then return end
@@ -100,11 +107,13 @@ end
 
 home.onStart = function()
     _BandSpeed = EpiVars.bandSpeed
+    brmChain.onStart()
+    awtx.system.protocol.setRate(1, 0)
     awtx.fmtPrint.varSet(60, "_BandSpeed","Band speed (hz)",awtxConstants.fmtPrint.TYPE_FLOAT_VAR )
-    awtx.fmtPrint.set(2,"{A.60.1}")
+    awtx.fmtPrint.set(60,"{A.60.1}")
     CurrentMode = { keypad = {} }
     awtx.os.enhancedTimer.new(1, function()
-        home.init()
+        home:init()
     end, 3000, 1)
 end
 
@@ -138,6 +147,7 @@ function modeVpt.keypad.onF5KeyDown()
     home.init()
 end
 
+
 function modeVpt.keypad.onF3KeyUp()
     if not modeVpt.screen.buttons.enter.visible then return end
     modeVpt.screen.buttons.enter:setVisible(false)
@@ -156,7 +166,6 @@ modeVpt.rpn = table.copy(brmScaleKeys.defaultRpn) or {}
 modeVpt.init = function()
     CurrentMode = modeVpt
     awtx.keypad.setRpnMode(1)
-    brmChain.onStart()
     modeVpt.screen.labels.label2:setText(Language._phrases.initTransmission)
     modeVpt.screen.buttons.enter:setVisible(true)
     modeVpt.screen.buttons.stop:setVisible(false)
