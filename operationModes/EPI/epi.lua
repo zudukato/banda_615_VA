@@ -122,7 +122,7 @@ function epiMode.takeWeight(net)
     else
         local dataParamsJson= awtx.json.encode(dataParams)
         print(dataParamsJson)
-        Databases.EPI.tables.offlineWeight:addRow({dataParamsJson})
+        Databases.EPI.tables.offlineWeight:addRow({nil,dataParamsJson})
     end
     module.updateOperationNumber()
     module.updateSerialAndLote()

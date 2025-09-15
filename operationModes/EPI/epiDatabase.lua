@@ -56,6 +56,7 @@ local products = database:newTable("products",{
 ---@field eanPvSi string
 
 local offlineWeight = database:newTable("offlineWeight",{
+    "id INTEGER PRIMARY KEY AUTOINCREMENT",
     "data_params TEXT"
 })
 
