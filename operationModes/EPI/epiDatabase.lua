@@ -5,7 +5,7 @@ database = brmSqlClasses:new("EPI","C:\\Database\\")
 Databases.EPI = database
 
 ---@class epiDatabase.productRow
----@field product_id integer
+---@field id integer
 ---@field name string
 ---@field product_line string
 ---@field gtin string
@@ -18,7 +18,7 @@ Databases.EPI = database
 ---@field description string
 
 local products = database:newTable("products",{
-    "product_id INTEGER NOT NULL PRIMARY KEY",
+    "id INTEGER NOT NULL PRIMARY KEY",
     "name TEXT",
     "product_line TEXT",
     "gtin TEXT",

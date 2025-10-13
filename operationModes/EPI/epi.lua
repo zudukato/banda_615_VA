@@ -16,7 +16,7 @@ epiMode.operationActive = true
 epiMode.keypad = {}
 epiMode.screen = brmScreen.newScreen("EPI")
 
-epiMode.screen:newLabel("header", "PLANTA VALOR AGREGADO", { x = 0, y = 0 }, { width = 320, height = 12 }, 10, 4, true,
+epiMode.screen:newLabel("header", PersistentVars.headers[1], { x = 0, y = 0 }, { width = 320, height = 12 }, 10, 4, true,
     true)
 epiMode.screen:newScale("mainScale", 0, 2, { x = 0, y = 15 })
 epiMode.screen:newLabel("classificationLabel", "CLASSIFICATION", { x = 0, y = 64 }, { width = 120, height = 10 }, 8, 4,
@@ -100,11 +100,13 @@ function epiMode.takeWeight(net)
         net = awtx.weight.getCurrent(0).net
     end
     if mode == 2 or mode == 1 then
+        local percentage = mode==1 and EpiVars.variableWeightRange or EpiVars.staticWeightRange
+        percentage = percentage/100
         local objectiveWeight = productRow.objective_weight
-        local upTolerance = objectiveWeight + objectiveWeight * (0.03)
-        local lowTolerance = objectiveWeight - objectiveWeight * (0.03)
+        local upTolerance = objectiveWeight + objectiveWeight * percentage
+        local lowTolerance = objectiveWeight - objectiveWeight * percentage
         if upTolerance < net or lowTolerance > net then
-            dataComm.messageStatusBar(Language._phrases.weightOutOfRange)
+            dataComm.messageStatusBar(Language._phrases.weightOutOfRange,2000)
             return
         end
     end
@@ -140,7 +142,7 @@ end
 
 function module.getProduct()
     local idProduct       = epiMode.screen.labels.productValue.text
-    local value, response = Databases.EPI.tables.products:find("product_id", idProduct)
+    local value, response = Databases.EPI.tables.products:find("id", idProduct)
     if #value == 0 then
         epiMode.screen.labels.statusBar:setText(Language._phrases.productNotFound)
         awtx.os.enhancedTimer.new(1, function()
