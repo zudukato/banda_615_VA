@@ -4,11 +4,11 @@ local awtxConstants = require("Reqs.awtxReqConstants")
 local brmScaleKeys = require("Reqs.brmScaleKeys")
 local brmScreen = require("Reqs.brmScreenRAD6015")
 local modeEpi = require("operationModes.EPI.epi")
-local database = require("operationModes.EPI.epiDatabase")
 local epiMenu = require("EPI.menu")
 local brmVariables = require("Reqs.brmVariables")
 local brmChain = require("Reqs.brmChain")
 local pendingTransmission = require("operationModes.EPI.pendingTransmission")
+local importProducts = require("operationModes.EPI.importProducts")
 
 ---@alias EpiVars.operationMode
 ---|"ONLINE"
@@ -40,7 +40,7 @@ home.screen = brmScreen.newScreen("firstScreen")
 if not home.screen then return end
 home.screen:newScale("mainScale", 0, 2, { x = 0, y = 15 })
 ------labels
-home.screen:newLabel("header", "PLANTA VALOR AGREGADO", { x = 0, y = 0 }, { width = 320, height = 12 }, 10, 4, true, true)
+home.screen:newLabel("header",PersistentVars.headers[1], { x = 0, y = 0 }, { width = 320, height = 12 }, 10, 4, true, true)
 home.screen:newLabel("vpt", Language._phrases.validateFinishedProductMenu, { x = 0, y = 75 }, { height = 10, width = 320 })
 home.screen:newLabel("ema", Language._phrases.sendStoredMovementsMenu, { x = 0, y = 90 },{ height = 10, width = 320 })
 home.screen:newLabel("cdi", Language._phrases.indicatorConfigurationMenu, { x = 0, y = 105 },{ height = 10, width = 320 })
@@ -178,25 +178,7 @@ end
 
 
 function home.keypad.onTargetKeyHold()
-    local tr = table.csvToTable("C:\\Apps\\Reqs\\New CA.csv")
-    ---@diagnostic disable-next-line: invisible
-    local dbHandle = database.tables.products._dbHandle
-    dbHandle:exec("BEGIN TRANSACTION")
-
-    for _, row in pairs(tr) do
-        if #row >= 11 then
-            local result, query = pcall(function()
-                return string.format("REPLACE INTO products VALUES(%d,'%s','%s',%f,%f,%f,%f,%f,%f,%f,'%s')",
-                    tonumber(row[1]), row[2], row[3], tonumber(row[4]), tonumber(row[5]),
-                    tonumber(row[6]), tonumber(row[7]), tonumber(row[8]), tonumber(row[9]), tonumber(row[10]), row[11])
-            end)
-            if result then
-                dbHandle:exec(query)
-            end
-        end
-    end
-    dbHandle:exec("COMMIT")
-    print("done")
+    importProducts.init(home)
 end
 
 return home
