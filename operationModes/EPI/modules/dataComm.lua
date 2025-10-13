@@ -32,7 +32,7 @@ function dataComm.getParams(lote, serialNumber, order, row)
     local data            = {
         gtin = ("%13s"):format(row.gtin),
         description = row.description,
-        productId = row.product_id,
+        productId = row.id,
         productDescription = row.name,
         productLine = row.product_line,
         tare = row.tare,
