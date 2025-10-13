@@ -31,14 +31,14 @@ function epiMenu.changePrinter()
 end
 
 function epiMenu.changeStaticWeightRange()
-    local staticWeightRange, isEnterKey = awtx.keypad.enterInteger(EpiVars.scaleId, 0, 99, -1, Language.enter,
+    local staticWeightRange, isEnterKey = awtx.keypad.enterInteger(EpiVars.staticWeightRange, 0, 99, -1, Language.enter,
         Language._phrases.staticWeightRange)
     if not isEnterKey then return end
     EpiVars.staticWeightRange = staticWeightRange
 end
 
 function epiMenu.changeVariableWeightRange()
-    local variableWeightRange, isEnterKey = awtx.keypad.enterInteger(EpiVars.scaleId, 0, 99, -1, Language.enter,
+    local variableWeightRange, isEnterKey = awtx.keypad.enterInteger(EpiVars.variableWeightRange, 0, 99, -1, Language.enter,
         Language._phrases.variableWeightRange)
     if not isEnterKey then return end
     EpiVars.variableWeightRange = variableWeightRange
@@ -67,6 +67,8 @@ MenusTree.operationVars = {
     { text = Language._phrases.bandSpeed, action = "FUNC", value = epiMenu.changeBandSpeed },
     { text = "prueba semaforo", onlySupport=true ,action = "MENU", value = "testLights" },
 }
+-- table.insert(MenusTree.config,
+--     {text = "RETORNO POR ZERO", action = "FUNC", value=})
 
 MenusTree.testLights = {
     { text = "Verde", action = "FUNC", value = function ()
