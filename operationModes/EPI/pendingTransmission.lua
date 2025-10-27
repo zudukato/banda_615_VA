@@ -49,7 +49,7 @@ pendingTransmission.initTransmission = function ()
         local dataString = dataComm.getDataString(object)
         dataComm.setExpectedResponse(object.serialNumber)
         local response = dataComm.sendDataString(dataString)
-        if response then
+        if response == object.serialNumber or response == "SERIE DUPLICADA" then
             print(allRows[i])
             Databases.EPI.tables.offlineWeight:deleteRow("id",allRows[i]["id"])
         end
