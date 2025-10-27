@@ -5,7 +5,6 @@ function dataComm.setExpectedResponse(response)
     expectedResponse = response
 end
 
-
 ---@param lote string
 ---@param serialNumber string
 ---@param order string
@@ -14,7 +13,7 @@ end
 function dataComm.getParams(lote, serialNumber, order, row)
     ---@type osdate
     ---@diagnostic disable-next-line: assign-type-mismatch
-    local date = os.date("*t") 
+    local date            = os.date("*t")
     local lote            = lote
     local serialNumber    = serialNumber
     local dataTime        = os.time(date)
@@ -60,27 +59,22 @@ end
 local Response
 
 function dataComm.dataResponse(...)
-    local serialResponse = awtx.serial.getRx(1)
-    local socketResponse = awtx.socket.getRx(1)
-    ---@type string
-    local response = serialResponse or socketResponse
-    response = response:gsub("[\r\n]", "")
-    if response == expectedResponse then Response = response end
+    local responseSerial = awtx.serial.getRx(1)
+    local responseSocket = awtx.socket.getRx(1)
+    local response = responseSerial == "" and responseSocket or responseSerial
+    Response = response:gsub("[\r\n]", "")
 end
 
 function dataComm.waitResponse()
-    for j = 1,30 do
+    for j = 1, 30 do
         awtx.os.systemEvents(100)
-        if Response then
-            Response = nil
-            dataComm.messageStatusBar(Language.done,1000)
-            return true
-        end
+        if Response then return Response end
     end
-    return false
 end
 
 function dataComm.sendDataString(dataString)
+    Response = nil
+    local response
     local pasKeypad = CurrentMode.keypad
     CurrentMode.keypad = {}
     local responseFlag = false
@@ -94,14 +88,17 @@ function dataComm.sendDataString(dataString)
     for i = 1, 10 do
         awtx.serial.send(1, dataString)
         awtx.socket.send(1, dataString)
-         responseFlag = dataComm.waitResponse()
-        if responseFlag then break end
+        response = dataComm.waitResponse()
+        if response then break end
     end
-    if not responseFlag then dataComm.messageStatusBar(Language.error,3000) end
+    if not response then
+        dataComm.messageStatusBar(Language.error, 3000)
+        Response = nil
+    end
     awtx.serial.unregisterEomEvent(1)
     awtx.socket.unregisterEomEvent(1)
     CurrentMode.keypad = pasKeypad
-    return responseFlag
+    return response
 end
 
 ---@param dataParams epiMode.dataParams
@@ -121,6 +118,7 @@ function dataComm.getDataString(dataParams)
         dataParams.netWeightLb,                     --netWeightLb
         "00000",                                    --zeros
         ("%06.3f"):format(dataParams.realWeight),   --realWeight
+        ("%03d"):format(dataParams.pieceCount),      --piece count
         "\r\n",                                     --eom
     }
     local dataString = table.concat(data, "")
@@ -130,6 +128,7 @@ end
 ---@type awtx.os.enhancedTimer
 local messageTimer
 function dataComm.messageStatusBar(message, time)
+    time = time or 1000
     if not CurrentMode.screen.labels.statusBar then return end
     if messageTimer then messageTimer:pause() end
     CurrentMode.screen.labels.statusBar:setText(message)
