@@ -68,7 +68,6 @@ function module.onClearKeyUp()
     field.value:setText(field.value.text:sub(1, -2))
 end
 
-
 ---@param dataParams epiMode.dataParams
 function module.doPrint(dataParams)
     local path = "c:\\Apps\\PrintFormats\\"
@@ -78,10 +77,10 @@ function module.doPrint(dataParams)
     if labelType == 0 then
         path = path .. printFormatForWeightMode[mode]
     else
-        path = path .. "PrintFormat" .. labelType .. "txt"
+        path = path .. "PrintFormat" .. labelType .. ".txt"
     end
     local file = io.open(path, "r")
-    if not file then return brmUtilities.doScroll(Language.no .. " " .. Language.file) end
+    if not file then return brmUtilities.doScroll(Language.no .. " " .. Language.file,1000) end
     ---@type string
     local printFormat = file:read("*all")
     printFormat = printFormat:interpolate(dataParams)
@@ -94,37 +93,46 @@ function epiMode.takeWeight(net)
     local mode = productRow.mode
     if not BackToZero.checkZero() then return dataComm.messageStatusBar(Language._phrases.noReturnToZero) end
     if not net then
-        if EventsHandle.events[EventsHandle.eventList.noMinWt] then return dataComm.messageStatusBar(Language._phrases
-            .weightToLow) end
+        if EventsHandle.events[EventsHandle.eventList.noMinWt] then
+            return dataComm.messageStatusBar(Language._phrases
+                .weightToLow)
+        end
         brmUtilities.waitStability(0)
         net = awtx.weight.getCurrent(0).net
     end
     if mode == 2 or mode == 1 then
-        local percentage = mode==1 and EpiVars.variableWeightRange or EpiVars.staticWeightRange
-        percentage = percentage/100
+        local percentage = mode == 1 and EpiVars.variableWeightRange or EpiVars.staticWeightRange
+        percentage = percentage / 100
         local objectiveWeight = productRow.objective_weight
         local upTolerance = objectiveWeight + objectiveWeight * percentage
         local lowTolerance = objectiveWeight - objectiveWeight * percentage
         if upTolerance < net or lowTolerance > net then
-            dataComm.messageStatusBar(Language._phrases.weightOutOfRange,2000)
+            dataComm.messageStatusBar(Language._phrases.weightOutOfRange, 2000)
             return
         end
     end
     local dataParams = dataComm.getParams(
-    epiMode.screen.labels.loteValue.text,
-    epiMode.screen.labels.serialNumberValue.text,
-    epiMode.screen.labels.orderValue.text,
-    productRow
+        epiMode.screen.labels.loteValue.text,
+        epiMode.screen.labels.serialNumberValue.text,
+        epiMode.screen.labels.orderValue.text,
+        productRow
     )
     if EpiVars.operationMode == "ONLINE" then
         local dataString = dataComm.getDataString(dataParams)
         dataComm.setExpectedResponse(epiMode.screen.labels.serialNumberValue.text)
-        if not dataComm.sendDataString(dataString) then return end
+        local response = dataComm.sendDataString(dataString)
+        if not response then return end
+        if response == "SERIE DUPLICADA" then 
+            module.updateSerialAndLote()
+            module.updateOperationNumber()
+            return
+        end
+        if response ~= epiMode.screen.labels.serialNumberValue.text then return end
         module.doPrint(dataParams)
     else
-        local dataParamsJson= awtx.json.encode(dataParams)
+        local dataParamsJson = awtx.json.encode(dataParams)
         print(dataParamsJson)
-        Databases.EPI.tables.offlineWeight:addRow({nil,dataParamsJson})
+        Databases.EPI.tables.offlineWeight:addRow({ nil, dataParamsJson })
     end
     module.updateOperationNumber()
     module.updateSerialAndLote()
@@ -161,15 +169,18 @@ function module.getProduct()
     epiMode.onEnter = epiMode.takeWeight
     epiMode.screen.buttons.back:setVisible(true)
     epiMode.keypad.onF4KeyDown = function(...)
-        epiMode.keypad.onQwertyKeyUp = module.onQwertyKeyUp
-        epiMode.keypad.onClearKeyUp = module.onClearKeyUp
-        epiMode.onEnter = module.getProduct
-        epiMode.keypad.onF4KeyDown = nil
+        module.back()
     end
 end
 
+module.back = function()
+    module.defaultValues(true)
+end
+
+
 epiMode.onEnter = module.getProduct
 local function exit()
+    awtx.serial.unregisterEomEvent(3)
     if not previousMode then return end
     brmUtilities.doScroll(Language.exit, 1500)
     previousMode.init()
@@ -192,6 +203,7 @@ function module.updateSerialAndLote()
 end
 
 function module.defaultValues(activeExitButton)
+    awtx.weight.requestTareClear(0)
     epiMode.onEnter = module.getProduct
     epiMode.keypad.onQwertyKeyUp = module.onQwertyKeyUp
     epiMode.keypad.onClearKeyUp = module.onClearKeyUp
@@ -209,6 +221,33 @@ function module.defaultValues(activeExitButton)
     end
 end
 
+function module.newBarcode(...)
+    awtx.display.doBeep()
+    local barcode = awtx.serial.getRx(3)
+    barcode = barcode:gsub("[\r\n.]", ""):sub(1, field.maxValueSize)
+    if not tonumber(barcode) then return end
+    epiMode.screen.labels.productValue:setText(barcode)
+    module.getProduct()
+end
+
+module.averaging = false
+function module.initWeight(setpoint, pulseUp)
+    local pulseDown = not pulseUp
+    if not pulseDown then return end
+    if module.averaging then return end
+    awtx.weight.stopAveraging(0)
+    awtx.weight.startAveraging(0)
+    module.averaging = true
+end
+
+function module.endWeight(_, pulseUp)
+    if not pulseUp then return end
+    if not module.averaging then return end
+    awtx.weight.stopAveraging(0)
+    epiMode.takeWeight(awtx.weight.getCurrent().netavg)
+    module.averaging = false
+end
+
 function epiMode.init(order, prevMode)
     awtx.fmtPrint.set(2, "{A.99.1}")
     awtx.fmtPrint.varSet(99, "_PrintFormat", "printFormat", awtxReqConstants.fmtPrint.TYPE_STRING_VAR)
@@ -218,6 +257,14 @@ function epiMode.init(order, prevMode)
     epiMode.screen.labels.orderValue:setText("" .. order)
     epiMode.screen:show()
     index = 1
+    if EpiVars.barcodeMode then
+        awtx.serial.setEomChar(3, 13)
+        awtx.serial.registerEomEvent(3, module.newBarcode)
+    end
+    if true then
+        awtx.setpoint.registerInputEvent(1, module.initWeight)
+        awtx.setpoint.registerInputEvent(2, module.endWeight)
+    end
 end
 
 return epiMode
