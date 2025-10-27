@@ -9,7 +9,7 @@ importProducts.screen = brmScreenRAD6015.newScreen("importProducts")
 importProducts.screen:newLabel("title", "Importar Productos", { x = 0, y = 0 },
     { width = 400, height = 30 },
     0, 30, true, false)
-importProducts.screen:newLabel("info","PENDIENTES:" , { x = 0, y = 40 },
+importProducts.screen:newLabel("info","" , { x = 0, y = 40 },
     { width = 100, height = 30 },
     0,31, true, false)
 importProducts.screen:newLabel("count", "", { x = 120, y = 110 }, { width = 39, height = 20 }, 5, 4, true, false)
@@ -25,6 +25,9 @@ local PrevMode
 
 importProducts.init = function (prevMode)
     PrevMode = prevMode
+    importProducts.screen.labels.count:setText("")
+    importProducts.screen.labels.total:setText("")
+    importProducts.screen.labels.info:setText("")
     CurrentMode = importProducts
     importProducts.screen:show()
 end
@@ -34,9 +37,10 @@ end
 importProducts.import = function ()
     exitFlag = false
     local path = importProducts.getPath()
-    if not path then return end
-    brmUtilities.doScroll("Espere",1000)
+    if not path then exitFlag = true; return end
+    importProducts.screen.labels.info:setText("ESPERE")
     local tr = table.csvToTable(path)
+    importProducts.screen.labels.info:setText("")
     ---@diagnostic disable-next-line: invisible
     local dbHandle = database.tables.products._dbHandle
     local total = #tr
@@ -65,7 +69,8 @@ importProducts.import = function ()
 end
 
 importProducts.getPath = function ()
-    local pathList = awtx.os.getFiles("g:\\")
+    local path = awtx.os.amISimulator() and "c:\\Apps\\Reqs\\" or "g:\\"
+    local pathList = awtx.os.getFiles(path)
     _, pathList = brmUtilities.keysValues(pathList)
     if not type(pathList) then return brmUtilities.doScroll('No USB', 1000) end
     local newPathList = {}
