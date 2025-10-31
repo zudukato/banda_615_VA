@@ -85,7 +85,7 @@ function module.doPrint(dataParams)
     local printFormat = file:read("*all")
     printFormat = printFormat:interpolate(dataParams)
     _PrintFormat = printFormat
-    awtx.printer.printFmt(2)
+    awtx.printer.printFmt(EpiVars.printPort)
     file:close()
 end
 
@@ -138,14 +138,16 @@ function epiMode.takeWeight(net)
     module.updateSerialAndLote()
     BackToZero.notZero()
 end
-
-function module.updateOperationNumber()
+function module.resetOperationIfNewDay()
     local date = os.date("%Y-%m-%d")
-    EpiVars.operationNumber = EpiVars.operationNumber + 1
     if EpiVars.date ~= date then
         EpiVars.date = date
         EpiVars.operationNumber = 1
     end
+end
+function module.updateOperationNumber()
+    EpiVars.operationNumber = EpiVars.operationNumber + 1
+    module.resetOperationIfNewDay()
 end
 
 function module.getProduct()
@@ -207,6 +209,7 @@ function module.defaultValues(activeExitButton)
     epiMode.onEnter = module.getProduct
     epiMode.keypad.onQwertyKeyUp = module.onQwertyKeyUp
     epiMode.keypad.onClearKeyUp = module.onClearKeyUp
+    module.resetOperationIfNewDay()
     module.updateSerialAndLote()
     epiMode.screen.labels.classificationValue:setText("" .. EpiVars.classification)
     epiMode.screen.labels.statusBar:setText("")
@@ -249,7 +252,7 @@ function module.endWeight(_, pulseUp)
 end
 
 function epiMode.init(order, prevMode)
-    awtx.fmtPrint.set(2, "{A.99.1}")
+    awtx.fmtPrint.set(EpiVars.printPort, "{A.99.1}")
     awtx.fmtPrint.varSet(99, "_PrintFormat", "printFormat", awtxReqConstants.fmtPrint.TYPE_STRING_VAR)
     previousMode = prevMode
     CurrentMode = epiMode

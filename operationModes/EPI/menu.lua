@@ -52,6 +52,12 @@ function epiMenu.changeBandSpeed()
     _BandSpeed = bandSpeed
 end
 
+function epiMenu.changePort(varName)
+    local portNumber, isEnterKey = awtx.keypad.enterInteger(EpiVars[varName],0,5, -1 ,"INGRESE PUERTO")
+    if not isEnterKey then return end
+    EpiVars[varName] = portNumber
+end
+
 MenusTree = MenusTree or {}
 table.insert(MenusTree.topMenu, {
     text = "Variables de Operacion", action = "MENU", value = "operationVars"
@@ -65,6 +71,9 @@ MenusTree.operationVars = {
     { text = Language._phrases.staticWeightRange,   action = "FUNC", value = epiMenu.changeStaticWeightRange },
     { text = Language._phrases.variableWeightRange, action = "FUNC", value = epiMenu.changeVariableWeightRange },
     { text = Language._phrases.bandSpeed, action = "FUNC", value = epiMenu.changeBandSpeed },
+    { text = "PRINT PORT", action = "FUNC", value = epiMenu.changePort, params = {"printPort"} },
+    { text = "COMMUNICATION PORT", action = "FUNC", value = epiMenu.changePort, params = {"communicationPort"}},
+    { text = "SOCKET NUMBER", action = "FUNC", value =  epiMenu.changePort, params = {"communicationPortSocket"}},
     { text = "prueba semaforo", onlySupport=true ,action = "MENU", value = "testLights" },
 }
 -- table.insert(MenusTree.config,

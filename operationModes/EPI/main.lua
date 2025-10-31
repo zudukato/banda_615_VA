@@ -26,6 +26,10 @@ EpiVars.operationMode = "ONLINE"
 EpiVars.boxWeight = false
 EpiVars.staticWeightRange = 0
 EpiVars.variableWeightRange = 0
+EpiVars.barcodeMode = true
+EpiVars.communicationPort = 2
+EpiVars.communicationPortSocket = 2
+EpiVars.printPort = 1
 
 EpiVars = brmVariables.SavedVariableTable("EpiVars", EpiVars, true)
 

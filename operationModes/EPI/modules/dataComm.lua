@@ -59,8 +59,8 @@ end
 local Response
 
 function dataComm.dataResponse(...)
-    local responseSerial = awtx.serial.getRx(1)
-    local responseSocket = awtx.socket.getRx(1)
+    local responseSerial = awtx.serial.getRx(EpiVars.communicationPort)
+    local responseSocket = awtx.socket.getRx(EpiVars.communicationPortSocket)
     local response = responseSerial == "" and responseSocket or responseSerial
     Response = response:gsub("[\r\n]", "")
 end
@@ -78,16 +78,16 @@ function dataComm.sendDataString(dataString)
     local pasKeypad = CurrentMode.keypad
     CurrentMode.keypad = {}
     local responseFlag = false
-    awtx.serial.setEomChar(1, 13)
-    awtx.socket.setEomChar(1, 13)
-    awtx.serial.registerEomEvent(1, dataComm.dataResponse)
-    awtx.socket.registerEomEvent(1, dataComm.dataResponse)
+    awtx.serial.setEomChar(EpiVars.communicationPort, 13)
+    awtx.socket.setEomChar(EpiVars.communicationPortSocket, 13)
+    awtx.serial.registerEomEvent(EpiVars.communicationPort, dataComm.dataResponse)
+    awtx.socket.registerEomEvent(EpiVars.communicationPortSocket, dataComm.dataResponse)
     dataComm.messageStatusBar(Language.wait .. "....")
 
 
     for i = 1, 10 do
-        awtx.serial.send(1, dataString)
-        awtx.socket.send(1, dataString)
+        awtx.serial.send(EpiVars.communicationPort, dataString)
+        awtx.socket.send(EpiVars.communicationPortSocket, dataString)
         response = dataComm.waitResponse()
         if response then break end
     end
@@ -95,8 +95,8 @@ function dataComm.sendDataString(dataString)
         dataComm.messageStatusBar(Language.error, 3000)
         Response = nil
     end
-    awtx.serial.unregisterEomEvent(1)
-    awtx.socket.unregisterEomEvent(1)
+    awtx.serial.unregisterEomEvent(EpiVars.communicationPort)
+    awtx.socket.unregisterEomEvent(EpiVars.communicationPort)
     CurrentMode.keypad = pasKeypad
     return response
 end
