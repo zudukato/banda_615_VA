@@ -61,6 +61,7 @@ function f.resetDatabases()
         awtx.os.deleteFile(database.path .. database.databaseName)
     end
     awtx.os.deleteFile('c://Databases//*.db')
+    brmUtilities.reboot()
 end
 
 function f.resetWeights()
