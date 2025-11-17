@@ -49,7 +49,7 @@ home.screen:newLabel("vpt", Language._phrases.validateFinishedProductMenu, { x =
 home.screen:newLabel("ema", Language._phrases.sendStoredMovementsMenu, { x = 0, y = 90 },{ height = 10, width = 320 })
 home.screen:newLabel("cdi", Language._phrases.indicatorConfigurationMenu, { x = 0, y = 105 },{ height = 10, width = 320 })
 home.screen:newLabel("epi", Language._phrases.packIndividualProductMenu, { x = 0, y = 120 },{ height = 10, width = 320 })
-home.screen:newLabel("statusBar", "", { x = 0, y = 135 }, { width = 320, height = 10 }, 9, 4, true, true)
+home.screen:newLabel("statusBar", "", { x = 0, y = 135 }, { width = 320, height = 10 }, 10, 4, true, true)
 for _, label in pairs(home.screen.labels) do
     label:setFont(awtxConstants.graphics.FONT_LUCIDA_CON_10)
 end
