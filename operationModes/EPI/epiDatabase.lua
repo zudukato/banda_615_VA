@@ -19,26 +19,33 @@ Databases.EPI = database
 
 local products = database:newTable("products",{
     "id INTEGER NOT NULL PRIMARY KEY",
+    "id_product NOT NULL",
     "name TEXT",
     "product_line TEXT",
-    "gtin TEXT",
-    "objective_weight REAL",
-    "tare REAL",
-    "mode INTEGER",
+    "gtin TEXT NOT NULL",
+    "gtin14 TEXT NOT NULL",
+    "objective_weight REAL NOT NULL",
+    "tare REAL NOT NULL",
+    "mode INTEGER NOT NULL",
     "label_type INTEGER",
-    "expiration INTEGER",
-    "piece_count INTEGER",
-    "description TEXT"
+    "expiration INTEGER NOT NULL",
+    "piece_count INTEGER DEFAULT 1",
+    "description TEXT",
+    "frozen boolean DEFAULT 1",
+    "rotation_date INTEGER DEFAULT 10 ",
+    "provider_number integer",
+    "sku TEXT",
+    "id_product_client TEXT",
 }
 )
----@class epiDatabase.OfflineWeight
+---@class epiDatabase.OfflineWeight.data_params
 ---@field gtin string
 ---@field description string
 ---@field product_id integer
 ---@field product_description string
 ---@field product_line string
 ---@field tare number
----@field tareMg integer
+---@field tareG number
 ---@field piece_count integer
 ---@field scale_id integer
 ---@field serial_id integer
