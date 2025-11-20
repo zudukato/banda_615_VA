@@ -149,7 +149,7 @@ function dataComm.getDataString(dataParams)
         ("%05i"):format(dataParams.classification), --classification
         dataParams.lote,                            --lote
         ("%13d"):format(dataParams.order),          --order
-        ("%d%d%d"):format(dataParams.expirationDay,
+        ("%02d%02d%02d"):format(dataParams.expirationDay,
             dataParams.expirationMonth,
             dataParams.expirationYear2),           --expiration
         ("%04d"):format(dataParams.tareG),         --tare in grams
