@@ -17,7 +17,7 @@ local brmUtilities = require("Reqs.brmUtilities")
 ------------------------------------ Setup ----------------------------------------
 ------------------- Persistent variables for normal application -------------------
 --default values
-local minWt = 4*awtx.weight.getCurrent(0).curDivision
+local minWt = 20*awtx.weight.getCurrent(0).curDivision
 PersistentVars = PersistentVars or {}
 PersistentVars.currentMode = "NormalWeight"--provisional
 PersistentVars.minWt = minWt or 200 --min weight
@@ -26,7 +26,7 @@ PersistentVars.userPassword = "1793" --user password
 PersistentVars.shortCuts = {["0000"] = "PrintConf"}--user Password
 PersistentVars.headers = {"header1", "header2"}-- ticket headers
 PersistentVars.ticketNumber = 1--ticket number
-PersistentVars.zeroThreshold = 100
+PersistentVars.zeroThreshold = 2*awtx.weight.getCurrent(0).curDivision
 PersistentVars.zeroTareClear = false
 PersistentVars.backToZeroActive = true
 PersistentVars.language = "$"
@@ -83,6 +83,7 @@ function BackToZero.checkZero()
 end
 
 function BackToZero.zero(_, setpointActive)
+    if not setpointActive then return end
     EventsHandle.events.notBackToZero = false
 end
 _MinWt = PersistentVars.minWt
@@ -131,7 +132,7 @@ if startUp then
 end
     -- firstScreen:show()
 local function onStart()
-
+    Zero = PersistentVars.zeroThreshold
     awtx.setpoint.registerOutputEvent(39, onMinWt)
     awtx.setpoint.registerOutputEvent(38, BackToZero.zero)
     onMinWt(nil, false)
