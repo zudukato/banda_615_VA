@@ -3,6 +3,7 @@ local brmScaleKeys = require("Reqs.brmScaleKeys")
 local brmUtilities = require("Reqs.brmUtilities")
 local awtxReqConstants = require("Reqs.awtxReqConstants")
 local dataComm = require("modules.dataComm")
+local lightControl = require("modules.lightControl")
 local date
 local epiMode = {}
 local module = {}
@@ -11,12 +12,13 @@ _PrintFormat = ""
 local productRow
 local previousMode
 
+
 epiMode.operationActive = true
 ---@type brmScaleKeys.KeypadEvents
 epiMode.keypad = {}
 epiMode.screen = brmScreen.newScreen("EPI")
 
-epiMode.screen:newLabel("header", PersistentVars.headers[1], { x = 0, y = 0 }, { width = 320, height = 12 }, 10, 4, true,
+epiMode.screen:newLabel("header", "", { x = 0, y = 0 }, { width = 320, height = 12 }, 10, 4, true,
     true)
 epiMode.screen:newScale("mainScale", 0, 2, { x = 0, y = 15 })
 epiMode.screen:newLabel("classificationLabel", "CLASSIFICATION", { x = 0, y = 64 }, { width = 120, height = 10 }, 8, 4,
@@ -35,8 +37,9 @@ epiMode.screen:newLabel("serialNumberLabel", Language._phrases.seralNumber, { x 
     false)
 epiMode.screen:newLabel("serialNumberValue", "", { x = 80, y = 96 }, { width = 120, height = 10 }, 8, 4, true, false)
 epiMode.screen:newLabel("productDescription", "", { x = 0, y = 110 }, { width = 320, height = 20 }, 9, 6, true, false)
-epiMode.screen:newLabel("statusBar", Language._phrases.packIndividualProduct, { x = 0, y = 135 },
-    { width = 320, height = 10 },
+epiMode.screen:newLabel("online", "", { x = 0, y = 135 }, { width = 64, height = 10 }, 10, 4, true, true)
+epiMode.screen:newLabel("statusBar", Language._phrases.packIndividualProduct, { x = 64, y = 135 },
+    { width = 254, height = 10 },
     10, 4, true, true)
 
 epiMode.screen:newButton("enter", "ENTER", { x = 130, y = 148 }, { width = 60, height = 30 }, 2, 4, true, false)
@@ -80,20 +83,27 @@ function module.doPrint(dataParams)
         path = path .. "PrintFormat" .. labelType .. ".txt"
     end
     local file = io.open(path, "r")
-    if not file then return brmUtilities.doScroll(Language.no .. " " .. Language.file,1000) end
+    if not file then return brmUtilities.doScroll(Language.no .. " " .. Language.file, 1000) end
     ---@type string
     local printFormat = file:read("*all")
     printFormat = printFormat:interpolate(dataParams)
     _PrintFormat = printFormat
-    awtx.printer.printFmt(EpiVars.printPort)
     file:close()
+    for linea in string.gmatch(printFormat, "([^\n]+)") do
+        awtx.serial.send(EpiVars.printPort,linea.."\n")
+        awtx.os.systemEvents(EpiVars.interLiner)
+    end
 end
 
 function epiMode.takeWeight(net)
     local mode = productRow.mode
-    if not BackToZero.checkZero() then return dataComm.messageStatusBar(Language._phrases.noReturnToZero) end
+    if not BackToZero.checkZero() then
+        lightControl.setStatus(lightControl.states.red)
+        return dataComm.messageStatusBar(Language._phrases.noReturnToZero)
+    end
     if not net then
         if EventsHandle.events[EventsHandle.eventList.noMinWt] then
+            lightControl.setStatus(lightControl.states.red)
             return dataComm.messageStatusBar(Language._phrases
                 .weightToLow)
         end
@@ -107,6 +117,7 @@ function epiMode.takeWeight(net)
         local upTolerance = objectiveWeight + objectiveWeight * percentage
         local lowTolerance = objectiveWeight - objectiveWeight * percentage
         if upTolerance < net or lowTolerance > net then
+            lightControl.setStatus(lightControl.states.red)
             dataComm.messageStatusBar(Language._phrases.weightOutOfRange, 2000)
             return
         end
@@ -121,15 +132,27 @@ function epiMode.takeWeight(net)
         local dataString = dataComm.getDataString(dataParams)
         dataComm.setExpectedResponse(epiMode.screen.labels.serialNumberValue.text)
         local response = dataComm.sendDataString(dataString)
-        if not response then return end
-        if response == "SERIE DUPLICADA" then 
-            module.updateSerialAndLote()
-            module.updateOperationNumber()
+        if not response then
+            lightControl.setStatus(lightControl.states.red)
+            dataComm.messageStatusBar("ERROR DE CONEXION", 10000)
             return
         end
-        if response ~= epiMode.screen.labels.serialNumberValue.text then return end
+        if response == "SERIE DUPLICADA" then
+            lightControl.setStatus(lightControl.states.red)
+            module.updateSerialAndLote()
+            module.updateOperationNumber()
+            dataComm.messageStatusBar("SERIE DUPLICADA", 10000)
+            return
+        end
+        if response ~= epiMode.screen.labels.serialNumberValue.text then
+            lightControl.setStatus(lightControl.states.green)
+            dataComm.messageStatusBar("ERROR DE RESPUESTA", 10000)
+            return end
+        lightControl.setStatus(lightControl.states.green)
         module.doPrint(dataParams)
     else
+        lightControl.setStatus(lightControl.states.green)
+        module.doPrint(dataParams)
         local dataParamsJson = awtx.json.encode(dataParams)
         print(dataParamsJson)
         Databases.EPI.tables.offlineWeight:addRow({ nil, dataParamsJson })
@@ -138,6 +161,7 @@ function epiMode.takeWeight(net)
     module.updateSerialAndLote()
     BackToZero.notZero()
 end
+
 function module.resetOperationIfNewDay()
     local date = os.date("%Y-%m-%d")
     if EpiVars.date ~= date then
@@ -145,14 +169,15 @@ function module.resetOperationIfNewDay()
         EpiVars.operationNumber = 1
     end
 end
+
 function module.updateOperationNumber()
     EpiVars.operationNumber = EpiVars.operationNumber + 1
     module.resetOperationIfNewDay()
 end
 
 function module.getProduct()
-    local idProduct       = epiMode.screen.labels.productValue.text
-    local value, response = Databases.EPI.tables.products:find("id", idProduct)
+    local id              = epiMode.screen.labels.productValue.text
+    local value, response = Databases.EPI.tables.products:find("id", id)
     if #value == 0 then
         epiMode.screen.labels.statusBar:setText(Language._phrases.productNotFound)
         awtx.os.enhancedTimer.new(1, function()
@@ -212,6 +237,8 @@ function module.defaultValues(activeExitButton)
     module.resetOperationIfNewDay()
     module.updateSerialAndLote()
     epiMode.screen.labels.classificationValue:setText("" .. EpiVars.classification)
+    epiMode.screen.labels.header:setText(PersistentVars.headers[1])
+    epiMode.screen.labels.online:setText("" .. EpiVars.operationMode)
     epiMode.screen.labels.statusBar:setText("")
     epiMode.screen.labels.productDescription:setText("")
     epiMode.screen.labels.productValue:setText("")
