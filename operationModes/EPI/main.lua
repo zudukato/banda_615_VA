@@ -30,6 +30,7 @@ EpiVars.barcodeMode = true
 EpiVars.communicationPort = 2
 EpiVars.communicationPortSocket = 2
 EpiVars.printPort = 1
+EpiVars.interLiner = 10
 
 EpiVars = brmVariables.SavedVariableTable("EpiVars", EpiVars, true)
 
@@ -113,6 +114,7 @@ home.onStart = function()
     _BandSpeed = EpiVars.bandSpeed
     brmChain.onStart()
     awtx.system.protocol.setRate(1, 0)
+    awtx.system.protocol.setRate(3, 0)
     awtx.fmtPrint.varSet(60, "_BandSpeed","Band speed (hz)",awtxConstants.fmtPrint.TYPE_FLOAT_VAR )
     awtx.fmtPrint.set(60,"{A.60.1}")
     CurrentMode = { keypad = {} }
@@ -157,6 +159,7 @@ function modeVpt.keypad.onF3KeyUp()
     modeVpt.screen.buttons.enter:setVisible(false)
     modeVpt.screen.buttons.stop:setVisible(true)
     awtx.system.protocol.setRate(1, 10)
+    awtx.system.protocol.setRate(3, 10)
 end
 
 function modeVpt.keypad.onF4KeyUp()
@@ -164,6 +167,7 @@ function modeVpt.keypad.onF4KeyUp()
     modeVpt.screen.buttons.stop:setVisible(false)
     modeVpt.screen.buttons.enter:setVisible(true)
     awtx.system.protocol.setRate(1, 0)
+    awtx.system.protocol.setRate(3, 0)
 end
 
 modeVpt.rpn = table.copy(brmScaleKeys.defaultRpn) or {}
@@ -178,6 +182,7 @@ end
 
 modeVpt.exit = function()
     awtx.system.protocol.setRate(1, 0)
+    awtx.system.protocol.setRate(3, 0)
 end
 
 
