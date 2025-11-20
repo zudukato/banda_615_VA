@@ -74,6 +74,11 @@ MenusTree.operationVars = {
     { text = "PRINT PORT", action = "FUNC", value = epiMenu.changePort, params = {"printPort"} },
     { text = "COMMUNICATION PORT", action = "FUNC", value = epiMenu.changePort, params = {"communicationPort"}},
     { text = "SOCKET NUMBER", action = "FUNC", value =  epiMenu.changePort, params = {"communicationPortSocket"}},
+    { text = "INTER LINEADO", action = "FUNC", value =  function ()
+       local time = awtx.keypad.enterInteger(EpiVars.interLiner,10,10000,-1, "ingrese inter lineado", "milisegundos")
+       if not time then return end
+       EpiVars.interLiner = time
+    end},
     { text = "prueba semaforo", onlySupport=true ,action = "MENU", value = "testLights" },
 }
 -- table.insert(MenusTree.config,
