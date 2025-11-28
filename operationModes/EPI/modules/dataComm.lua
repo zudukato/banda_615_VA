@@ -33,12 +33,18 @@ function dataComm.getParams(lote, serialNumber, order, row)
     local netWeightLb       = awtx.weight.convertWeight(0, 2, netWeight, 1, 1)
     local frozenLabel       = row.frozen == 1 and "CONGELADO, MANTENGASE EN CONGELACION -18 C" or ""
     local frozenLabelEn     = row.frozen == 1 and "FROZEN KEEP FROZEN AT 0 F" or ""
-    local eanQr             = string.format("010%13s13%06i3103%06i370110%12s  www.ganaderiarevuelta.com.mx",
+    local eanQr             = string.format("01%014s13%06i3103%06i370110%12s  www.ganaderiarevuelta.com.mx",
         row.gtin, lote, netWeight * 1000, serialNumber)
-    local eanPvCi           = string.format("(01)0%13s(13)%02d%02d%02d(3103)%06i(37)01", row.gtin, date.year % 100,
-        date.month, date.day, netWeight * 1000)
-    local eanPvSi           = string.format("010%13s13%02d%02d%02d3103%06i3701", row.gtin, date.year % 100, date.month,
-        date.day, netWeight * 1000)
+    local eanPvCi           = string.format("(01)%s(3102)%06i(3202)%06i(21)%012d", ("%14s"):format(row.gtin):gsub(" ", "0"),
+        netWeight * 100, netWeightLb * 100, serialNumber)
+    local eanPvSi           = string.format("01%s3102%06i3202%06i21%012d", ("%14s"):format(row.gtin):gsub(" ", "0"),
+        netWeight * 100, netWeightLb * 100, serialNumber)
+    local ean2PvCi          = string.format("(13)%02d%02d%02d(17)%02d%02d%02d(10)%02d%02d%02d(90)%02d(91)%06d", date.year %
+        100, date.month, date.day, expiration.year % 100,
+        expiration.month, expiration.day, date.day, date.month, date.year % 100, '0', row.provider_number)
+    local ean2PvSi          = string.format("13%02d%02d%02d17%02d%02d%02d10%02d%02d%02d90%02d91%06d", date.year %
+        100, date.month, date.day, expiration.year % 100,
+        expiration.month, expiration.day, date.day, date.month, date.year % 100, '0', row.provider_number)
     local descriptions      = string.split(row.description, "|")
     if descriptions and #descriptions > 0 then
         for i, value in pairs(descriptions) do
@@ -66,7 +72,11 @@ function dataComm.getParams(lote, serialNumber, order, row)
     data.serialNumber = serialNumber
     data.realWeight = net
     data.netWeight = netWeight
+    data.netWeight2f = ("%05.2f"):format(netWeight)
+    data.netWeight3f = ("%06.3f"):format(netWeight)
     data.netWeightLb = netWeightLb
+    data.netWeightLb2f = ("%05.2f"):format(netWeightLb)
+    data.netWeightLb3f = ("%06.3f"):format(netWeightLb)
     data.lote = lote
     data.order = order
     data.expirationDay = ("%02d"):format(expiration.day)
@@ -76,6 +86,8 @@ function dataComm.getParams(lote, serialNumber, order, row)
     data.eanQr = eanQr
     data.eanPvCi = eanPvCi
     data.eanPvSi = eanPvSi
+    data.ean2PvCi = ean2PvCi
+    data.ean2PvSi = ean2PvSi
     data.frozenLabel = frozenLabel
     data.frozenLabelEn = frozenLabelEn
     data.sku = row.sku
@@ -88,6 +100,7 @@ function dataComm.getParams(lote, serialNumber, order, row)
     data.rotationYear2 = ("%2d"):format(rotationDate.year % 100)
     data.onlineOfflineChar = onlineOfflineChar
     data.hourChar = hourChar
+
 
     return data
 end
