@@ -1,4 +1,5 @@
 local epiMenu = {}
+local database         = require("operationModes.EPI.epiDatabase")
 function epiMenu.changeSerialId()
     local serialId = tonumber(EpiVars.serialId:sub(2)) or 1
     local serialId, isEnterKey = awtx.keypad.enterInteger(serialId, 1, 9, -1, Language.enter, Language._phrases.serialId)
@@ -58,6 +59,15 @@ function epiMenu.changePort(varName)
     EpiVars[varName] = portNumber
 end
 
+function epiMenu.resetOffline()
+    local choice = awtx.keypad.selectList("no,si",0,-1,"ELIMINAR","FUERA DE LINEA")
+    if not choice or choice==0 then return end
+    local dbHandle = database.tables.products._dbHandle
+    print(dbHandle:exec("BEGIN TRANSACTION"))
+    print(dbHandle:exec("DELETE FROM offlineWeight;"))
+    print(dbHandle:exec("COMMIT"))
+end
+
 MenusTree = MenusTree or {}
 table.insert(MenusTree.topMenu, {
     text = "Variables de Operacion", action = "MENU", value = "operationVars"
@@ -72,6 +82,11 @@ MenusTree.operationVars = {
     { text = Language._phrases.variableWeightRange, action = "FUNC", value = epiMenu.changeVariableWeightRange },
     { text = Language._phrases.bandSpeed, action = "FUNC", value = epiMenu.changeBandSpeed },
     { text = "PRINT PORT", action = "FUNC", value = epiMenu.changePort, params = {"printPort"} },
+    { text = "SENSORES", action = "FUNC", value = function() 
+        local sensors = awtx.keypad.selectList("no,si",EpiVars.sensors,-1,"Habilitar")
+        if not sensors then return end
+        EpiVars.sensors = sensors
+        end},
     { text = "COMMUNICATION PORT", action = "FUNC", value = epiMenu.changePort, params = {"communicationPort"}},
     { text = "SOCKET NUMBER", action = "FUNC", value =  epiMenu.changePort, params = {"communicationPortSocket"}},
     { text = "INTER LINEADO", action = "FUNC", value =  function ()
@@ -81,6 +96,11 @@ MenusTree.operationVars = {
     end},
     { text = "prueba semaforo", onlySupport=true ,action = "MENU", value = "testLights" },
 }
+MenusTree.reset = MenusTree.reset or {}
+table.insert(MenusTree.reset,
+    { text = "ELIMINAR FUERA DE LINEA", action = "FUNC", value = epiMenu.resetOffline}
+)
+
 -- table.insert(MenusTree.config,
 --     {text = "RETORNO POR ZERO", action = "FUNC", value=})
 
