@@ -137,8 +137,9 @@ function epiMode.takeWeight(net)
             dataComm.messageStatusBar("ERROR DE CONEXION", 10000)
             return
         end
-        if response == "SERIE DUPLICADA" then
+        if string.find(response:lower(),"error") then
             lightControl.setStatus(lightControl.states.red)
+            EpiVars.operationNumber = EpiVars.operationNumber+1
             module.updateSerialAndLote()
             module.updateOperationNumber()
             dataComm.messageStatusBar("SERIE DUPLICADA", 10000)
@@ -201,6 +202,11 @@ function module.getProduct()
 end
 
 module.back = function()
+    local pas, isEnter = awtx.keypad.enterInteger(0,0,9999,"INGRESE","CONTRASENA")
+    if not isEnter then return end
+    if tostring(pas)  ~= PersistentVars.userPassword then 
+      brmUtilities.doScroll("ERROR CONTRASENA",3000)
+      return  end
     module.defaultValues(true)
 end
 
@@ -230,6 +236,7 @@ function module.updateSerialAndLote()
 end
 
 function module.defaultValues(activeExitButton)
+    productRow = nil
     awtx.weight.requestTareClear(0)
     epiMode.onEnter = module.getProduct
     epiMode.keypad.onQwertyKeyUp = module.onQwertyKeyUp
@@ -273,6 +280,7 @@ end
 function module.endWeight(_, pulseUp)
     if not pulseUp then return end
     if not module.averaging then return end
+    if not productRow then return end
     awtx.weight.stopAveraging(0)
     epiMode.takeWeight(awtx.weight.getCurrent().netavg)
     module.averaging = false
@@ -291,7 +299,7 @@ function epiMode.init(order, prevMode)
         awtx.serial.setEomChar(3, 13)
         awtx.serial.registerEomEvent(3, module.newBarcode)
     end
-    if true then
+    if EpiVars.sensors then
         awtx.setpoint.registerInputEvent(1, module.initWeight)
         awtx.setpoint.registerInputEvent(2, module.endWeight)
     end

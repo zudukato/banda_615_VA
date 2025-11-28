@@ -31,6 +31,7 @@ EpiVars.communicationPort = 2
 EpiVars.communicationPortSocket = 2
 EpiVars.printPort = 1
 EpiVars.interLiner = 10
+EpiVars.sensors = 1
 
 EpiVars = brmVariables.SavedVariableTable("EpiVars", EpiVars, true)
 
@@ -82,6 +83,9 @@ home.keypad.onF1KeyDown = function()
 end
 
 home.keypad.onF4KeyDown = function()
+    local value, isEnterKey = awtx.keypad.enterInteger(0, 0, 999999, 3000, Language.enter.." "..Language.password)
+    if not isEnterKey then return end
+    if tostring(value) ~= PersistentVars.userPassword then brmUtilities.doScroll("ERROR CONTRASENA",3000) return end
     local value, isEnterKey = awtx.keypad.enterInteger(0, 0, 9999, -1, Language.enter, Language._phrases.orderT)
     if not isEnterKey then return end
     home.exit()
