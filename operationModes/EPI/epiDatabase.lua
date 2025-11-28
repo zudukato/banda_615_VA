@@ -33,7 +33,7 @@ local products = database:newTable("products",{
     "description TEXT",
     "frozen boolean DEFAULT 1",
     "rotation_date INTEGER DEFAULT 10 ",
-    "provider_number integer",
+    "provider_number integer DEFAULT 216218",
     "sku TEXT",
     "id_product_client TEXT",
 }
