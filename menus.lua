@@ -61,6 +61,7 @@ function f.resetDatabases()
         awtx.os.deleteFile(database.path .. database.databaseName)
     end
     awtx.os.deleteFile('c://Databases//*.db')
+    brmUtilities.reboot()
 end
 
 function f.resetWeights()
@@ -125,6 +126,12 @@ local menusTree =
     },
     config = {
         { text = Language._phrases.minWt, action = "FUNC", value = f.changeMinWt },
+        { text = "ZERO TH", action = "FUNC", value = function ()
+            local zero = awtx.keypad.enterFloat(PersistentVars.zeroThreshold,0,80000,-1,"Ingrese Zero")
+            if not zero then return end
+            PersistentVars.zeroThreshold = zero
+            Zero = zero
+        end },
     },
     reset = {
         { text = Language._phrases.resetAll, action = "FUNC", value = f.resetAll },

@@ -109,6 +109,7 @@ function brmScaleKeys.usbKeyHandle(keycode, ...)
 
   ---@type table<integer,brmScaleKeys.usbKeyHandle.call>
   local calls = {
+    [4108] = { func = "onEnterKeyUp" },
     [4109] = { func = "onEscapeKeyUp" },
     [4110] = { func = "onClearKeyUp" },
   }
@@ -138,6 +139,7 @@ end
 ---@field onZeroKeyDown? fun(...)
 ---@field onZeroKeyUp? fun(...)
 ---@field onZeroKeyHold? fun(...)
+---@field onEnterKeyUp? fun(...)
 ---@field onSampleKeyDown? fun(...)
 ---@field onSampleKeyUp? fun(...)
 ---@field onSampleKeyHold? fun(...)
@@ -214,6 +216,7 @@ brmScaleKeys.defaultKeypad = {
   end,
   onZeroKeyUp = nil,
   onZeroKeyHold = nil,
+  onEnterKeyUp = nil,
   onSampleKeyDown = nil,
   onSampleKeyUp = nil,
   onSampleKeyHold = nil,

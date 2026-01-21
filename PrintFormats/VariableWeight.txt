@@ -1,0 +1,32 @@
+^XZ^XA
+^XFE:UNICAVA1281.ZPL^FS
+^FN01^FD{{productDescription}}^FS
+^FN02^FD{{productLine}}^FS
+^FN03^FD{{description_1}}^FS
+^FN04^FD{{description_2}} ^FS
+^FN05^FD{{description_3}} ^FS
+^FN06^FD{{description_4}}^FS
+^FN07^FD{{productId}}^FS
+^FN08^FD{{lote}}^FS
+^FN09^FD{{serialNumber}}^FS
+^FN10^FD{{gtin}}^FS
+^FN11^FD{{idProductClient}}^FS
+^FN12^FD{{sku}}^FS
+^FN13^FD{{pieceCount}}^FS
+^FN14^FD{{providerNumber}} ^FS
+^FN16^FD{{day}}{{month}}{{year2}}^FS
+^FN18^FD{{expirationDay}}/{{expirationMonth}}/{{expirationYear2}}^FS
+^FN19^FD{{rotationDay}}{{rotationMonth}}{{rotationYear2}} ^FS
+^FN20^FD {{netWeight2f}} kg / {{netWeightLb2f}} lb ^FS
+^FN21^FD>;>8{{eanPvSi}}^FS
+^FN22^FD{{eanPvCi}}^FS
+^FN23^FD>;>8{{ean2PvSi}}^FS
+^FN24^FD{{ean2PvCi}}^FS
+^FN25^FD>:{{gtin14}}^FS
+^FN26^FD{{gtin14}}^FS
+^FN27^FD{{hourChar}}{{onlineOfflineChar}}^FS
+^FN28^FD{{description_5}}^FS
+^FN29^FD{{description_6}}^FS
+^FN30^FD{{frozenLabel}}^FS
+^FN31^FD{{frozenLabelEn}}^FS
+^XZ

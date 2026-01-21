@@ -16,6 +16,12 @@ function string.split(inputString, delimiter)
     return tab
 end
 
+function string.interpolate(str,vars)
+    return (str:gsub("{{(.-)}}", function(key)
+        return tostring(vars[key] or "")
+    end))
+end
+
 ---function to do scroll a string or number in the indicator screen when the string is to long
 ---@param inputString string|number -- string or number to do scroll
 ---@param stepTime? integer --time to wait for each steps
@@ -215,6 +221,30 @@ function brmUtilities.getNumericFirmwareVersion()
     return tonumber(numericVersion)
 end
 
+function table.csvToTable(path)
+    local file = io.open(path,"r")
+    local resultTable={}
+    if file then 
+        for line in file:lines() do
+            table.insert(resultTable, string.split(line, ","))
+        end
+    end
+    return resultTable
+end
+
+function table.concatTablesKeyValue(...)
+    local resultTable = {}
+    local tables = {...}
+    for _,tbl in pairs(tables) do
+        for key,value in pairs(tbl) do
+            if not resultTable[key] then
+                resultTable[key] = value
+            end
+        end
+    end
+    return resultTable
+end
+
 ---DO NOT USE IT, IT'S PROBABLY BROKEN
 -- ---function who return a table list of folders in a path
 -- ---@param path string --the path of files "c:\\something\\...\\"
@@ -242,4 +272,5 @@ brmUtilities.keysValues = table.keysValues
 brmUtilities.extractParam = table.extractParam
 brmUtilities.split = string.split
 brmUtilities.range = math.range
+brmUtilities.interpolate = string.interpolate
 return brmUtilities

@@ -17,7 +17,7 @@ local brmUtilities = require("Reqs.brmUtilities")
 ------------------------------------ Setup ----------------------------------------
 ------------------- Persistent variables for normal application -------------------
 --default values
-local minWt = 4*awtx.weight.getCurrent(0).curDivision
+local minWt = 20*awtx.weight.getCurrent(0).curDivision
 PersistentVars = PersistentVars or {}
 PersistentVars.currentMode = "NormalWeight"--provisional
 PersistentVars.minWt = minWt or 200 --min weight
@@ -26,7 +26,7 @@ PersistentVars.userPassword = "1793" --user password
 PersistentVars.shortCuts = {["0000"] = "PrintConf"}--user Password
 PersistentVars.headers = {"header1", "header2"}-- ticket headers
 PersistentVars.ticketNumber = 1--ticket number
-PersistentVars.zeroThreshold = 100
+PersistentVars.zeroThreshold = 2*awtx.weight.getCurrent(0).curDivision
 PersistentVars.zeroTareClear = false
 PersistentVars.backToZeroActive = true
 PersistentVars.language = "$"
@@ -78,8 +78,12 @@ function BackToZero.notZero()
         EventsHandle.events[EventsHandle.eventList.notBackToZero] = nil
     end
 end
+function BackToZero.checkZero()
+    return not EventsHandle.events[EventsHandle.eventList.notBackToZero]
+end
 
 function BackToZero.zero(_, setpointActive)
+    if not setpointActive then return end
     EventsHandle.events.notBackToZero = false
 end
 _MinWt = PersistentVars.minWt
@@ -90,16 +94,55 @@ end
 
 --------------------------------------Modules--------------------------------------
 local brmChain = require("Reqs.brmChain")
-local peripherals = require("Peripherals.brmPeripherals")
-CurrentMode = require("operationModes.normalWeight.main") or {}
+CurrentMode = require("operationModes.EPI.main") or {}
 
+local brmUtilities = require("Reqs.brmUtilities")
+local awtxConstants = require("Reqs.awtxReqConstants")
+local brmScaleKeys = require("Reqs.brmScaleKeys")
+local brmScreen = require("Reqs.brmScreenRAD6015")
 
+local appName = "EPI615"
+local appVersion = "VER 2.0.0.0"
+local appDate =  "BRM20250416" ---last modification
+
+local startUp = brmScreen.newScreen("startUp")
+if startUp then
+    startUp:newLabel("title")
+    startUp.labels.title:setText(appName)
+    startUp.labels.title:setLocation({x=0, y =1})
+    startUp.labels.title:reSize({width=200,height=42})
+    startUp.labels.title:setFont(awtxConstants.graphics.FONT_LUCIDA_CON_40)
+    startUp.labels.title:setVisible(true)
+
+    startUp:newLabel("version")
+    startUp.labels.version:setText(appVersion)
+    startUp.labels.version:setLocation({x=200, y =20})
+    startUp.labels.version:reSize({width=120,height=18})
+    startUp.labels.version:setFont(awtxConstants.graphics.FONT_LUCIDA_CON_16)
+    startUp.labels.version:setVisible(true)
+
+    startUp:newLabel("appDate")
+    startUp.labels.appDate:setText(appDate)
+    startUp.labels.appDate:setLocation({x=200, y =1})
+    startUp.labels.appDate:reSize({width=120,height=18})
+    startUp.labels.appDate:setFont(awtxConstants.graphics.FONT_LUCIDA_CON_16)
+    startUp.labels.appDate:setVisible(true)
+
+    startUp:newPicturebox("logo", "C:\\Apps\\Graphics\\Logo_Basculas.bmp",{x = 0, y= 80})
+end
+    -- firstScreen:show()
 local function onStart()
+    Zero = PersistentVars.zeroThreshold
     awtx.setpoint.registerOutputEvent(39, onMinWt)
     awtx.setpoint.registerOutputEvent(38, BackToZero.zero)
     onMinWt(nil, false)
-    brmChain.onStart()
-    if type(CurrentMode.onStart) == 'function' then CurrentMode.onStart() end
+    if type(CurrentMode.onStart) == 'function' then 
+        CurrentMode.onStart() 
+    end
+
+    if startUp then
+        startUp:show()
+    end
 end
 onStart()
 
