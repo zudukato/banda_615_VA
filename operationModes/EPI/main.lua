@@ -32,6 +32,7 @@ EpiVars.communicationPortSocket = 2
 EpiVars.printPort = 1
 EpiVars.interLiner = 10
 EpiVars.sensors = 1
+EpiVars.WaitSeconds = 10
 
 EpiVars = brmVariables.SavedVariableTable("EpiVars", EpiVars, true)
 

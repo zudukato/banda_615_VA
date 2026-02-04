@@ -7,6 +7,12 @@ function epiMenu.changeSerialId()
     EpiVars.serialId = "R" .. serialId
 end
 
+function epiMenu.changeWaitResponse()
+    local secons, isEnterKey = awtx.keypad.enterInteger(EpiVars.WaitSeconds,1,60,-1,"SEGUNDOS")
+    if not isEnterKey then return end
+    EpiVars.WaitSeconds = secons
+end
+
 function epiMenu.changeClassification()
     local classification, isEnterKey = awtx.keypad.enterInteger(EpiVars.classification, 1, 9, -1, Language.enter,
         Language.classification)
@@ -80,6 +86,7 @@ MenusTree.operationVars = {
     { text = Language.printer,                      action = "FUNC", value = epiMenu.changePrinter },
     { text = Language._phrases.staticWeightRange,   action = "FUNC", value = epiMenu.changeStaticWeightRange },
     { text = Language._phrases.variableWeightRange, action = "FUNC", value = epiMenu.changeVariableWeightRange },
+    { text = "TIEMPO DE REINTENTO DE ENVIO", action = "FUNC", value = epiMenu.changeWaitResponse },
     { text = Language._phrases.bandSpeed, action = "FUNC", value = epiMenu.changeBandSpeed },
     { text = "PRINT PORT", action = "FUNC", value = epiMenu.changePort, params = {"printPort"} },
     { text = "SENSORES", action = "FUNC", value = function() 

@@ -137,6 +137,7 @@ function epiMode.takeWeight(net)
             dataComm.messageStatusBar("ERROR DE CONEXION", 10000)
             return
         end
+        brmUtilities.doScroll(response,2000)
         if string.find(response:lower(),"error") then
             lightControl.setStatus(lightControl.states.red)
             EpiVars.operationNumber = EpiVars.operationNumber+1

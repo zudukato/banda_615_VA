@@ -272,7 +272,7 @@ brmScaleKeys.defaultRpn = {
   end,
   ZERO = function(number)
     local newZero = tonumber(number)
-    awtx.weight.requestKeyboardZero(newZero)
+    --awtx.weight.requestZero(newZero)
   end
 }
 

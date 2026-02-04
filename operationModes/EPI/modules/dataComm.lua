@@ -35,11 +35,13 @@ function dataComm.getParams(lote, serialNumber, order, row)
     local frozenLabelEn     = row.frozen == 1 and "FROZEN KEEP FROZEN AT 0 F" or ""
     local eanQr             = string.format("01%014s13%06i3103%06i370110%12s  www.ganaderiarevuelta.com.mx",
         row.gtin, lote, netWeight * 1000, serialNumber)
-    local eanPvCi           = string.format("(01)%s(3102)%06i(3202)%06i(21)%012d", ("%14s"):format(row.gtin):gsub(" ", "0"),
+    local eanPvCi           = string.format("(01)%s(3102)%06i(3202)%06i(21)%012s",
+        ("%14s"):format(row.gtin):gsub(" ", "0"),
         netWeight * 100, netWeightLb * 100, serialNumber)
-    local eanPvSi           = string.format("01%s3102%06i3202%06i21%012d", ("%14s"):format(row.gtin):gsub(" ", "0"),
+    local eanPvSi           = string.format("01%s3102%06i3202%06i21%012s", ("%14s"):format(row.gtin):gsub(" ", "0"),
         netWeight * 100, netWeightLb * 100, serialNumber)
-    local ean2PvCi          = string.format("(13)%02d%02d%02d(17)%02d%02d%02d(10)%02d%02d%02d(90)%02d(91)%06d", date.year %
+    local ean2PvCi          = string.format("(13)%02d%02d%02d(17)%02d%02d%02d(10)%02d%02d%02d(90)%02d(91)%06d",
+        date.year %
         100, date.month, date.day, expiration.year % 100,
         expiration.month, expiration.day, date.day, date.month, date.year % 100, '0', row.provider_number)
     local ean2PvSi          = string.format("13%02d%02d%02d17%02d%02d%02d10%02d%02d%02d90%02d91%06d", date.year %
@@ -111,14 +113,31 @@ function dataComm.dataResponse(...)
     local responseSerial = awtx.serial.getRx(EpiVars.communicationPort)
     local responseSocket = awtx.socket.getRx(EpiVars.communicationPortSocket)
     local response = responseSerial == "" and responseSocket or responseSerial
-    Response = response:gsub("[\r\n]", "")
+    local responseList = string.split(response, "\r\n")
+    if #responseList < 1 then return end
+    Response = responseList[1]:gsub("[%c]", "")
 end
 
 function dataComm.waitResponse()
-    for j = 1, 30 do
+    local preCurrentModeKeypad = CurrentMode.keypad
+    local cancel = false
+    CurrentMode.keypad = {
+        onF5KeyDown = function(...)
+            cancel = true
+        end
+    }
+    for j = 1, EpiVars.WaitSeconds * 10 do
         awtx.os.systemEvents(100)
-        if Response then return Response end
+        if cancel then
+            CurrentMode.keypad = preCurrentModeKeypad
+            return "CANCEL"
+        end
+        if Response then
+            CurrentMode.keypad = preCurrentModeKeypad
+            return Response
+        end
     end
+    CurrentMode.keypad = preCurrentModeKeypad
 end
 
 function dataComm.sendDataString(dataString)
